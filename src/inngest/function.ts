@@ -1,25 +1,51 @@
 // src/inngest/functions.ts
 import prisma from "@/lib/db";
 import { inngest } from "./client";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
 
-export const processTask = inngest.createFunction(
-  { id: "process-task", triggers: { event: "app/task.created" } },
+const google = createGoogleGenerativeAI();
+const openai = createOpenAI();
+const anthropic = createAnthropic();
+
+export const execute = inngest.createFunction(
+  { id: "execute-ai", triggers: { event: "execute/ai" } },
   async ({ event, step }) => {
-    const result = await step.run("handle-task", async () => {
-      return { processed: true, id: event.data.id };
-    });
+    const { steps: geminiSteps } = await step.ai.wrap(
+      "gemini-generate-text",
+      generateText,
+      {
+        model: google("gemini-2.5-flash"),
+        system: "you are a math expert",
+        prompt: "2+2=",
+      },
+    );
 
-    await step.sleep("fetching", "5s");
-    await step.sleep("transcribing", "5s");
-    await step.sleep("sending-to-ai", "5s");
+    const { steps: openaiSteps } = await step.ai.wrap(
+      "openai-generate-text",
+      generateText,
+      {
+        model: openai("gpt-4.1-mini"),
+        system: "you are a math expert",
+        prompt: "2+2=",
+      },
+    );
+    const { steps: anthropicSteps } = await step.ai.wrap(
+      "anthropic-generate-text",
+      generateText,
+      {
+        model: anthropic("claude-sonnet-4-5"),
+        system: "you are a math expert",
+        prompt: "2+2=",
+      },
+    );
 
-    await step.run("create-workflow", () => {
-      return prisma.workflow.create({
-        data: {
-          name: "workflow-from-inngest",
-        },
-      });
-    });
-    return { message: `Task ${event.data.id} complete`, result };
+    return {
+      geminiSteps,
+      openaiSteps,
+      anthropicSteps,
+    };
   },
 );
