@@ -15,6 +15,9 @@ export default function Page() {
       onSuccess: () => {
         toast.success("AI job queued");
       },
+      onError:()=>{
+        toast.error("Error")
+      }
     }),
   );
 
