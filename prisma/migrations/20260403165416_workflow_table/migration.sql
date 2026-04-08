@@ -5,7 +5,7 @@
 
 */
 -- DropTable
-DROP TABLE "WorkFlow";
+DROP TABLE IF EXISTS "WorkFlow";
 
 -- CreateTable
 CREATE TABLE "Workflow" (
