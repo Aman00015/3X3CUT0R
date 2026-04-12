@@ -1,6 +1,8 @@
+import { ErrorView } from "@/components/entity-components";
 import {
   WorkflowsContainer,
   WorkflowsList,
+  WorkflowsLoading,
 } from "@/features/workflows/components/workflows";
 import { prefetchWorkflows } from "@/features/workflows/prefetch";
 import { workflowsParamsLoader } from "@/features/workflows/server/params-loader";
@@ -21,10 +23,11 @@ const Page = async ({ searchParams }: Props) => {
   return (
     <WorkflowsContainer>
       <HydrateClient>
-        <ErrorBoundary fallback={<p>Error!</p>} />
-        <Suspense fallback={<p>Loading...</p>}>
-          <WorkflowsList />
-        </Suspense>
+        <ErrorBoundary fallback={<ErrorView />}>
+          <Suspense fallback={<WorkflowsLoading />}>
+            <WorkflowsList />
+          </Suspense>
+        </ErrorBoundary>
       </HydrateClient>
     </WorkflowsContainer>
   );
