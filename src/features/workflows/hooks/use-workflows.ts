@@ -19,7 +19,9 @@ export const useSuspenseWorkflows = () => {
     search: params.search ?? "",
   };
 
-  return useSuspenseQuery(trpc.workflows.getMany.queryOptions(normalizedParams));
+  return useSuspenseQuery(
+    trpc.workflows.getMany.queryOptions(normalizedParams),
+  );
 };
 
 export const useCreateWorkflow = () => {
@@ -34,6 +36,22 @@ export const useCreateWorkflow = () => {
       },
       onError: (error) => {
         toast.error(`Failed To Create Workflow: ${error.message}`);
+      },
+    }),
+  );
+};
+export const useRemoveWorkflow = () => {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    trpc.workflows.remove.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow ${data.name} removed`);
+        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries(
+          trpc.workflows.getOne.queryFilter({ id: data.id }),
+        );
       },
     }),
   );
