@@ -86,6 +86,8 @@ model Workflow {
 
 enum NodeType{
   INTIAL
+  MANUAL_TRIGGER
+  HTTP_REQUEST
 }
 model Node{
   id String @id @default(cuid())
