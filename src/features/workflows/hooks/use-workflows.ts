@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
 import { PAGINATION } from "@/config/constants";
+import { error } from "console";
 
 export const useSuspenseWorkflows = () => {
   const trpc = useTRPC();
@@ -81,6 +82,26 @@ export const useUpdateWorkflowName = () => {
       },
       onError: (error) => {
         toast.error(`Failed To Update Workflow: ${error.message}`);
+      },
+    }),
+  );
+};
+
+export const useUpdateWorkflow = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.workflows.update.mutationOptions({
+      onSuccess: (data) => {
+        toast.success(`Workflow ${data.name} saved`);
+        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries(
+          trpc.workflows.getOne.queryOptions({ id: data.id }),
+        );
+      },
+      onError: (error) => {
+        toast.error(`Failed To save Workflow: ${error.message}`);
       },
     }),
   );
