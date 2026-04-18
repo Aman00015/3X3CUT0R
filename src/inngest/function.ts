@@ -5,66 +5,45 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { NonRetriableError } from "inngest";
+import { topologicalSort } from "./utils";
+import { getExecutor } from "@/features/executions/lib/executor-registry";
+import { NodeType } from "@/generated/prisma";
 
 const google = createGoogleGenerativeAI();
 const openai = createOpenAI();
 const anthropic = createAnthropic();
 
-export const execute = inngest.createFunction(
-  { id: "execute-ai", triggers: { event: "execute/ai" } },
+export const executeWorkflow = inngest.createFunction(
+  { id: "execute-workflow", triggers: { event: "workflows/execute.workflow" } },
   async ({ event, step }) => {
+    const workflowId = event.data.workflowId;
+    if (!workflowId) {
+      throw new NonRetriableError("Workflow Id is missing");
+    }
 
-    const { steps: geminiSteps } = await step.ai.wrap(
-      "gemini-generate-text",
-      generateText,
-      {
-        model: google("gemini-2.5-flash"),
-        system: "you are a math expert",
-        prompt: "2+2=",
-        experimental_telemetry: {
-          isEnabled: true,
-          functionId: "joke_agent",
-          recordInputs: true,
-          recordOutputs: true,
+    const sortedNodes = await step.run("prepare-workflow", async () => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: { id: workflowId },
+        include: {
+          nodes: true,
+          connections: true,
         },
-      },
-    );
+      });
+      return topologicalSort(workflow.nodes, workflow.connections);
+    });
+    let context = event.data.initialData || {};
 
-    // const { steps: openaiSteps } = await step.ai.wrap(
-    //   "openai-generate-text",
-    //   generateText,
-    //   {
-    //     model: openai("gpt-4.1-mini"),
-    //     system: "you are a math expert",
-    //     prompt: "2+2=",
-    //     experimental_telemetry: {
-    //       isEnabled: true,
-    //       functionId: "joke_agent",
-    //       recordInputs: true,
-    //       recordOutputs: true,
-    //     },
-    //   },
-    // );
-    // const { steps: anthropicSteps } = await step.ai.wrap(
-    //   "anthropic-generate-text",
-    //   generateText,
-    //   {
-    //     model: anthropic("claude-sonnet-4-5"),
-    //     system: "you are a math expert",
-    //     prompt: "2+2=",
-    //     experimental_telemetry: {
-    //       isEnabled: true,
-    //       functionId: "joke_agent",
-    //       recordInputs: true,
-    //       recordOutputs: true,
-    //     },
-    //   },
-    // );
+    for(const node of sortedNodes){
+      const executor = getExecutor(node.type as NodeType)
+      context = await executor({
+        data: node.data as Record<string,unknown>,
+        nodeId: node.id,
+        context,
+        step
+      })
+    }
 
-    return {
-      geminiSteps,
-      // openaiSteps,
-      // anthropicSteps,
-    };
+    return { sortedNodes };
   },
 );
