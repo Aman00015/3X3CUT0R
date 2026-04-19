@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment
+
+Set `ENCRYPTION_KEY` in your local and deployment environments. It is required when the app encrypts or decrypts stored credentials.
+
 ## Getting Started
 
 First, run the development server:
