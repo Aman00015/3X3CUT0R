@@ -1,7 +1,5 @@
 import { TRPCClientError } from "@trpc/client";
-
 import { useState } from "react";
-
 import { UpgradeModal } from "@/components/upgrade-modal";
 
 export const useUpgradeModal = () => {
@@ -18,5 +16,6 @@ export const useUpgradeModal = () => {
   };
 
   const modal = <UpgradeModal open={open} onOpenChange={setOpen} />;
+
   return { handleError, modal };
 };
