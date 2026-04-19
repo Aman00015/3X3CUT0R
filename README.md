@@ -3,6 +3,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Environment
 
 Set `ENCRYPTION_KEY` in your local and deployment environments. It is required when the app encrypts or decrypts stored credentials.
+Use `INNGEST_DEV=1` only for local development with `npm run inngest:dev`. In production, set `INNGEST_EVENT_KEY` and leave `INNGEST_DEV` unset so event sends go to Inngest Cloud.
 
 ## Getting Started
 
