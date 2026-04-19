@@ -1,17 +1,26 @@
+import { checkout, polar, portal } from "@polar-sh/better-auth";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "./db";
-import { checkout, polar, portal } from "@polar-sh/better-auth";
+import prisma from "@/lib/db";
 import { polarClient } from "./polar";
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+  },
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
   },
   plugins: [
     polar({
@@ -21,15 +30,15 @@ export const auth = betterAuth({
         checkout({
           products: [
             {
-              productId: "11d630d3-c9ea-4204-91d6-8e1bb2bec073",
-              slug: "executor-pro", // Custom slug for easy reference in Checkout URL, e.g. /checkout/executor-pro
-            },
+              productId: "f81be8a8-45e1-4e45-a1e9-b9d3fd79f814",
+              slug: "pro",
+            }
           ],
           successUrl: process.env.POLAR_SUCCESS_URL,
           authenticatedUsersOnly: true,
         }),
-        portal()
+        portal(),
       ],
-    }),
-  ],
+    })
+  ]
 });

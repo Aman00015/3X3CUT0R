@@ -1,14 +1,14 @@
-import { auth } from "@/lib/auth";
-import { polarClient } from "@/lib/polar";
-import { initTRPC, TRPCError } from "@trpc/server";
-import { headers } from "next/headers";
-import { cache } from "react";
-import superjson from "superjson";
+import { auth } from '@/lib/auth';
+import { polarClient } from '@/lib/polar';
+import { initTRPC, TRPCError } from '@trpc/server';
+import { headers } from 'next/headers';
+import { cache } from 'react';
+import superjson from "superjson"
 export const createTRPCContext = cache(async () => {
   /**
    * @see: https://trpc.io/docs/server/context
    */
-  return { userId: "user_123" };
+  return { userId: 'user_123' };
 });
 // Avoid exporting the entire t-object
 // since it's not very descriptive.
@@ -28,29 +28,32 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "unauthorized",
+      message: "Unathorized",
     });
   }
+
   return next({ ctx: { ...ctx, auth: session } });
 });
-
 export const premiumProcedure = protectedProcedure.use(
   async ({ ctx, next }) => {
     const customer = await polarClient.customers.getStateExternal({
       externalId: ctx.auth.user.id,
     });
+
     if (
       !customer.activeSubscriptions ||
-      customer.activeSubscriptions.length == 0
+      customer.activeSubscriptions.length === 0
     ) {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "Active Subscription Required",
+        message: "Active subscription required",
       });
     }
+
     return next({ ctx: { ...ctx, customer } });
   },
 );

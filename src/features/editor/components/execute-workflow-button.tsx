@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useExecuteWorkflow, useUpdateWorkflow } from "@/features/workflows/hooks/use-workflows";
-import { useAtomValue } from "jotai";
 import { FlaskConicalIcon } from "lucide-react";
+import { useAtomValue } from "jotai";
 import { editorAtom } from "../store/atoms";
 
 export const ExecuteWorkflowButton = ({
@@ -9,31 +9,31 @@ export const ExecuteWorkflowButton = ({
 }: {
   workflowId: string;
 }) => {
-  const editor = useAtomValue(editorAtom);
-  const saveWorkflow = useUpdateWorkflow();
   const executeWorkflow = useExecuteWorkflow();
+  const saveWorkflow = useUpdateWorkflow();
+  const editor = useAtomValue(editorAtom);
 
   const handleExecute = async () => {
-    if (!editor) {
-      return;
+    // Auto-save the workflow first so UI canvas modifications are caught
+    if (editor) {
+      const nodes = editor.getNodes();
+      const edges = editor.getEdges();
+      
+      await saveWorkflow.mutateAsync({
+        id: workflowId,
+        nodes,
+        edges,
+      });
     }
 
-    const nodes = editor.getNodes();
-    const edges = editor.getEdges();
-
-    await saveWorkflow.mutateAsync({
-      id: workflowId,
-      nodes,
-      edges,
-    });
-
-    await executeWorkflow.mutateAsync({ id: workflowId });
+    // Then execute
+    executeWorkflow.mutate({ id: workflowId });
   };
 
   return (
-    <Button
-      size="lg"
-      onClick={handleExecute}
+    <Button 
+      size="lg" 
+      onClick={handleExecute} 
       disabled={executeWorkflow.isPending || saveWorkflow.isPending}
     >
       <FlaskConicalIcon className="size-4" />

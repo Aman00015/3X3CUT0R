@@ -21,15 +21,11 @@ import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
 
 import '@xyflow/react/dist/style.css';
 import { nodeComponents } from '@/config/node-components';
-import { AddNodeButton } from '@/components/add-node-button';
+import { AddNodeButton } from './add-node-button';
 import { useSetAtom } from 'jotai';
 import { editorAtom } from '../store/atoms';
-// import { nodeComponents } from '@/config/node-components';
-// import { useSetAtom } from 'jotai';
-// import { editorAtom } from '../store/atoms';
-// import { NodeType } from '@/generated/prisma';
-import { ExecuteWorkflowButton } from './execute-workflow-button';
 import { NodeType } from '@/generated/prisma';
+import { ExecuteWorkflowButton } from './execute-workflow-button';
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;

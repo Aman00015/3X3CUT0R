@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-// import { authClient } from "@/lib/auth-client";
 
 const registerSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -39,6 +39,8 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
+  const router = useRouter();
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -48,31 +50,31 @@ export function RegisterForm() {
     },
   });
 
-  // const signInGithub = async () => {
-  //   await authClient.signIn.social({
-  //     provider: "github",
-  //   }, {
-  //     onSuccess: () => {
-  //       router.push("/");
-  //     },
-  //     onError: () => {
-  //       toast.error("Something went wrong");
-  //     },
-  //   });
-  // };
+  const signInGithub = async () => {
+    await authClient.signIn.social({
+      provider: "github",
+    }, {
+      onSuccess: () => {
+        router.push("/");
+      },
+      onError: () => {
+        toast.error("Something went wrong");
+      },
+    });
+  };
 
-  // const signInGoogle = async () => {
-  //   await authClient.signIn.social({
-  //     provider: "google",
-  //   }, {
-  //     onSuccess: () => {
-  //       router.push("/");
-  //     },
-  //     onError: () => {
-  //       toast.error("Something went wrong");
-  //     },
-  //   });
-  // };
+  const signInGoogle = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    }, {
+      onSuccess: () => {
+        router.push("/");
+      },
+      onError: () => {
+        toast.error("Something went wrong");
+      },
+    });
+  };
 
   const onSubmit = async (values: RegisterFormValues) => {
     await authClient.signUp.email(
@@ -84,7 +86,7 @@ export function RegisterForm() {
       },
       {
         onSuccess: () => {
-          window.location.assign("/");
+          router.push("/");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
@@ -112,7 +114,7 @@ export function RegisterForm() {
               <div className="grid gap-6">
                 <div className="flex flex-col gap-4">
                   <Button
-                    // onClick={signInGithub}
+                    onClick={signInGithub}
                     variant="outline"
                     className="w-full"
                     type="button"
@@ -122,7 +124,7 @@ export function RegisterForm() {
                     Continue with GitHub
                   </Button>
                   <Button
-                    // onClick={signInGoogle}
+                    onClick={signInGoogle}
                     variant="outline"
                     className="w-full"
                     type="button"

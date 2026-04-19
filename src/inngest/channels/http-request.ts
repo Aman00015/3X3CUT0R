@@ -1,4 +1,4 @@
-// import { channel, topic } from "@inngest/realtime";
+import { channel, topic } from "@inngest/realtime";
 
 export const HTTP_REQUEST_CHANNEL_NAME = "http-request-execution";
 
