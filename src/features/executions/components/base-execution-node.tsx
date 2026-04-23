@@ -17,6 +17,7 @@ interface BaseExecutionNodeProps extends NodeProps {
   status?: NodeStatus;
   onSettings?: () => void;
   onDoubleClick?: () => void;
+  className?: string;
 };
 
 export const BaseExecutionNode = memo(
@@ -29,6 +30,7 @@ export const BaseExecutionNode = memo(
     status = "initial",
     onSettings,
     onDoubleClick,
+    className,
   }: BaseExecutionNodeProps) => {
     const { setNodes, setEdges } = useReactFlow();
     const handleDelete = () => {
@@ -55,6 +57,7 @@ export const BaseExecutionNode = memo(
         <NodeStatusIndicator
           status={status}
           variant="border"
+          className={className}
         >
           <BaseNode status={status} onDoubleClick={onDoubleClick}>
             <BaseNodeContent>
