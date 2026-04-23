@@ -9,6 +9,18 @@ import { openAiExecutor } from "../components/openai/executor";
 import { anthropicExecutor } from "../components/anthropic/executor";
 import { discordExecutor } from "../components/discord/executor";
 import { slackExecutor } from "../components/slack/executor";
+import { outputExecutor } from "../components/output/executor";
+import { razorpayTriggerExecutor } from "@/features/triggers/components/razorpay-trigger/executor";
+import { notionCreatePageExecutor } from "../components/notion/executor";
+import { whatsAppSendMessageExecutor } from "../components/whatsapp/executor";
+import { resendSendEmailExecutor } from "../components/resend/executor";
+import { geminiChatExecutor } from "../components/gemini-chat/executor";
+import { humanApprovalExecutor } from "../components/human-approval/executor";
+import { postToXExecutor } from "../components/post-to-x/executor";
+import { postToRedditExecutor } from "../components/post-to-reddit/executor";
+import { googleMapsExtractorExecutor } from "../components/google-maps-extractor/executor";
+
+// Removing OUTPUT_NODE_TYPE constant since OUTPUT is now in the enum
 
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.INITIAL]: manualTriggerExecutor,
@@ -22,6 +34,16 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.OPENAI]: openAiExecutor,
   [NodeType.DISCORD]: discordExecutor,
   [NodeType.SLACK]: slackExecutor,
+  [NodeType.RAZORPAY_PAYMENT_CAPTURED]: razorpayTriggerExecutor,
+  [NodeType.NOTION_CREATE_PAGE]: notionCreatePageExecutor,
+  [NodeType.WHATSAPP_SEND_MESSAGE]: whatsAppSendMessageExecutor,
+  [NodeType.RESEND_SEND_EMAIL]: resendSendEmailExecutor,
+  [NodeType.GEMINI_CHAT]: geminiChatExecutor,
+  [NodeType.HUMAN_APPROVAL]: humanApprovalExecutor,
+  [NodeType.POST_TO_X]: postToXExecutor,
+  [NodeType.POST_TO_REDDIT]: postToRedditExecutor,
+  [NodeType.GOOGLE_MAPS_EXTRACTOR]: googleMapsExtractorExecutor,
+  [NodeType.OUTPUT]: outputExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {

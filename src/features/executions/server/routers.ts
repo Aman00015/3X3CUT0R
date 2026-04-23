@@ -4,6 +4,21 @@ import z from "zod";
 import { PAGINATION } from "@/config/constants";
 
 export const executionsRouter = createTRPCRouter({
+  getLatestByWorkflow: protectedProcedure
+    .input(z.object({ workflowId: z.string() }))
+    .query(({ ctx, input }) => {
+      return prisma.execution.findFirst({
+        where: {
+          workflowId: input.workflowId,
+          workflow: {
+            userId: ctx.auth.user.id,
+          },
+        },
+        orderBy: {
+          startedAt: "desc",
+        },
+      });
+    }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {

@@ -11,6 +11,16 @@ import { OpenAiNode } from "@/features/executions/components/openai/node";
 import { AnthropicNode } from "@/features/executions/components/anthropic/node";
 import { DiscordNode } from "@/features/executions/components/discord/node";
 import { SlackNode } from "@/features/executions/components/slack/node";
+import { OutputNode } from "@/features/executions/components/output/node";
+import { RazorpayTriggerNode } from "@/features/triggers/components/razorpay-trigger/node";
+import { NotionNode } from "@/features/executions/components/notion/node";
+import { WhatsAppNode } from "@/features/executions/components/whatsapp/node";
+import { ResendNode } from "@/features/executions/components/resend/node";
+import { GeminiChatNode } from "@/features/executions/components/gemini-chat/node";
+import { HumanApprovalNode } from "@/features/executions/components/human-approval/node";
+import { PostToXNode } from "@/features/executions/components/post-to-x/node";
+import { PostToRedditNode } from "@/features/executions/components/post-to-reddit/node";
+import { GoogleMapsExtractorNode } from "@/features/executions/components/google-maps-extractor/node";
 
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
@@ -23,6 +33,16 @@ export const nodeComponents = {
   [NodeType.ANTHROPIC]: AnthropicNode,
   [NodeType.DISCORD]: DiscordNode,
   [NodeType.SLACK]: SlackNode,
+  [NodeType.RAZORPAY_PAYMENT_CAPTURED]: RazorpayTriggerNode,
+  [NodeType.NOTION_CREATE_PAGE]: NotionNode,
+  [NodeType.WHATSAPP_SEND_MESSAGE]: WhatsAppNode,
+  [NodeType.RESEND_SEND_EMAIL]: ResendNode,
+  [NodeType.GEMINI_CHAT]: GeminiChatNode,
+  [NodeType.HUMAN_APPROVAL]: HumanApprovalNode,
+  [NodeType.POST_TO_X]: PostToXNode,
+  [NodeType.POST_TO_REDDIT]: PostToRedditNode,
+  [NodeType.GOOGLE_MAPS_EXTRACTOR]: GoogleMapsExtractorNode,
+  [NodeType.OUTPUT]: OutputNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

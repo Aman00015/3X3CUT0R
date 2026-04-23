@@ -6,6 +6,7 @@ import type { NodeExecutor } from "@/features/executions/types";
 import { geminiChannel } from "@/inngest/channels/gemini";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
+import type { StructuredNodeOutput } from "@/features/executions/lib/structured-output";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);
@@ -132,8 +133,13 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
     return {
       ...context,
       [data.variableName]: {
-        text,
-      },
+        type: "markdown",
+        content: text,
+        meta: {
+          model: "gemini-3-flash-preview",
+          timestamp: new Date().toISOString(),
+        },
+      } satisfies StructuredNodeOutput,
     }
   } catch (error) {
      await publish(

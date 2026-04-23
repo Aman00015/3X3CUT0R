@@ -13,6 +13,15 @@ import { openAiChannel } from "./channels/openai";
 import { anthropicChannel } from "./channels/anthropic";
 import { discordChannel } from "./channels/discord";
 import { slackChannel } from "./channels/slack";
+import { outputChannel } from "./channels/output";
+import { razorpayTriggerChannel } from "./channels/razorpay-trigger";
+import { notionChannel } from "./channels/notion";
+import { whatsappChannel } from "./channels/whatsapp";
+import { resendChannel } from "./channels/resend";
+import { geminiChatChannel } from "./channels/gemini-chat";
+import { humanApprovalChannel } from "./channels/human-approval";
+import { postToXChannel } from "./channels/post-to-x";
+import { postToRedditChannel } from "./channels/post-to-reddit";
 
 export const executeWorkflow = inngest.createFunction(
   { 
@@ -41,6 +50,15 @@ export const executeWorkflow = inngest.createFunction(
       anthropicChannel(),
       discordChannel(),
       slackChannel(),
+      razorpayTriggerChannel(),
+      notionChannel(),
+      whatsappChannel(),
+      resendChannel(),
+      geminiChatChannel(),
+      humanApprovalChannel(),
+      postToXChannel(),
+      postToRedditChannel(),
+      outputChannel(),
     ],
   },
   async ({ event, step, publish }) => {
@@ -51,7 +69,7 @@ export const executeWorkflow = inngest.createFunction(
       throw new NonRetriableError("Event ID or workflow ID is missing");
     }
 
-    await step.run("create-execution", async () => {
+    const execution = await step.run("create-execution", async () => {
       return prisma.execution.create({
         data: {
           workflowId,
@@ -93,6 +111,7 @@ export const executeWorkflow = inngest.createFunction(
         data: node.data as Record<string, unknown>,
         nodeId: node.id,
         userId,
+        executionId: execution.id,
         context,
         step,
         publish,
