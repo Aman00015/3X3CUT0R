@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
@@ -92,11 +93,12 @@
     "toposort": "^2.0.2",
     "twitter-api-v2": "^1.29.0",
     "vaul": "^1.1.2",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "@prisma/client": "^6.19.2",
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
-    "@prisma/client": "^6.19.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -105,7 +107,6 @@
     "dotenv-cli": "^11.0.0",
     "inngest-cli": "^1.12.1",
     "mprocs": "^0.9.2",
-    "prisma": "^6.19.2",
     "shadcn": "^4.0.7",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
