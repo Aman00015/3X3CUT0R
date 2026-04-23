@@ -45,7 +45,7 @@ const formSchema = z.object({
     }),
   credentialId: z.string().min(1, "Credential is required"),
   searchQuery: z.string().min(1, "Search query is required"),
-  maxLeads: z.coerce.number().min(1).max(20).default(5),
+  maxLeads: z.number().min(1).max(20),
 });
 
 export type GoogleMapsExtractorFormValues = z.infer<typeof formSchema>;
@@ -198,7 +198,11 @@ export const GoogleMapsExtractorDialog = ({
                 <FormItem>
                   <FormLabel>Max Leads</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber)}
+                    />
                   </FormControl>
                   <FormDescription>
                     Maximum number of leads to extract (up to 20).
