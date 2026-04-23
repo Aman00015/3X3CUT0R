@@ -6,6 +6,7 @@ import type { NodeExecutor } from "@/features/executions/types";
 import { anthropicChannel } from "@/inngest/channels/anthropic";
 import prisma from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
+import type { StructuredNodeOutput } from "@/features/executions/lib/structured-output";
 
 Handlebars.registerHelper("json", (context) => {
   const jsonString = JSON.stringify(context, null, 2);
@@ -125,8 +126,13 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
     return {
       ...context,
       [data.variableName]: {
-        text,
-      },
+        type: "markdown",
+        content: text,
+        meta: {
+          model: "claude-sonnet-4-5",
+          timestamp: new Date().toISOString(),
+        },
+      } satisfies StructuredNodeOutput,
     }
   } catch (error) {
      await publish(

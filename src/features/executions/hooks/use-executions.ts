@@ -1,5 +1,5 @@
 import { useTRPC } from "@/trpc/client"
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useExecutionsParams } from "./use-executions-params";
 
 /**
@@ -18,5 +18,19 @@ export const useSuspenseExecutions = () => {
 export const useSuspenseExecution = (id: string) => {
   const trpc = useTRPC();
   return useSuspenseQuery(trpc.executions.getOne.queryOptions({ id }));
+};
+
+export const useLatestExecutionByWorkflow = (
+  workflowId: string,
+  enabled = true,
+) => {
+  const trpc = useTRPC();
+
+  return useQuery({
+    ...trpc.executions.getLatestByWorkflow.queryOptions({ workflowId }),
+    enabled: enabled && Boolean(workflowId),
+    retry: false,
+    refetchInterval: enabled ? 3000 : false,
+  });
 };
 

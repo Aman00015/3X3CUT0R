@@ -67,13 +67,19 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
       const endpoint = Handlebars.compile(data.endpoint)(context);
       const method = data.method;
 
-      const options: KyOptions = { method };
+      const options: KyOptions = { 
+        method,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        }
+      };
 
       if (["POST", "PUT", "PATCH"].includes(method)) {
         const resolved = Handlebars.compile(data.body || "{}")(context);
         JSON.parse(resolved);
         options.body = resolved;
         options.headers = {
+          ...options.headers,
           "Content-Type": "application/json",
         };
       }
@@ -85,6 +91,7 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
         : await response.text();
 
       const responsePayload = {
+        body: responseData,
         httpResponse: {
           status: response.status,
           statusText: response.statusText,

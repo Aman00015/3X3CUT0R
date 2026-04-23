@@ -75,6 +75,26 @@ export const workflowsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, nodes, edges } = input;
 
+      const uniqueNodes = Array.from(
+        new Map(nodes.map((node) => [node.id, node])).values(),
+      ).filter((node) => node.type);
+
+      const nodeIdSet = new Set(uniqueNodes.map((node) => node.id));
+      const uniqueEdges = Array.from(
+        new Map(
+          edges
+            .filter(
+              (edge) =>
+                nodeIdSet.has(edge.source)
+                && nodeIdSet.has(edge.target),
+            )
+            .map((edge) => [
+              `${edge.source}:${edge.target}:${edge.sourceHandle || "main"}:${edge.targetHandle || "main"}`,
+              edge,
+            ]),
+        ).values(),
+      );
+
       const workflow = await prisma.workflow.findUniqueOrThrow({
         where: { id, userId: ctx.auth.user.id },
       });
@@ -88,7 +108,7 @@ export const workflowsRouter = createTRPCRouter({
 
         // Create nodes
         await tx.node.createMany({
-          data: nodes.map((node) => ({
+          data: uniqueNodes.map((node) => ({
             id: node.id,
             workflowId: id,
             name: node.type || "unknown",
@@ -96,17 +116,19 @@ export const workflowsRouter = createTRPCRouter({
             position: node.position,
             data: node.data || {},
           })),
+          skipDuplicates: true,
         });
 
         // Create connections
         await tx.connection.createMany({
-          data: edges.map((edge) => ({
+          data: uniqueEdges.map((edge) => ({
             workflowId: id,
             fromNodeId: edge.source,
             toNodeId: edge.target,
             fromOutput: edge.sourceHandle || "main",
             toInput: edge.targetHandle || "main",
           })),
+          skipDuplicates: true,
         });
 
         // Update workflow's updateAt timestamp

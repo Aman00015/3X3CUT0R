@@ -62,6 +62,41 @@ const credentialTypeOptions = [
     label: "Gemini",
     logo: "/logos/gemini.svg",
   },
+  {
+    value: CredentialType.RAZORPAY,
+    label: "Razorpay",
+    logo: "/logos/razorpay.png",
+  },
+  {
+    value: CredentialType.NOTION,
+    label: "Notion",
+    logo: "/logos/notion.png",
+  },
+  {
+    value: CredentialType.TWILIO,
+    label: "Twilio WhatsApp",
+    logo: "/logos/whatsapp.jpeg",
+  },
+  {
+    value: CredentialType.META_WHATSAPP,
+    label: "Meta WhatsApp",
+    logo: "/logos/whatsapp.jpeg",
+  },
+  {
+    value: CredentialType.RESEND,
+    label: "Resend",
+    logo: "/logos/resend.png",
+  },
+  {
+    value: CredentialType.TWITTER,
+    label: "X (Twitter)",
+    logo: "/logos/x.svg",
+  },
+  {
+    value: CredentialType.REDDIT,
+    label: "Reddit",
+    logo: "/logos/reddit.png",
+  },
 ];
 
 interface CredentialFormProps {
@@ -188,7 +223,13 @@ export const CredentialForm = ({
                       <FormControl>
                         <Input 
                           type="password" 
-                          placeholder="sk-..."
+                          placeholder={
+                            form.watch("type") === CredentialType.TWITTER 
+                              ? "API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_SECRET" 
+                              : form.watch("type") === CredentialType.REDDIT
+                              ? "CLIENT_ID, CLIENT_SECRET, USERNAME, PASSWORD"
+                              : "sk-..."
+                          }
                           {...field}
                         />
                       </FormControl>

@@ -3,8 +3,10 @@
 import { createId } from "@paralleldrive/cuid2";
 import { useReactFlow } from "@xyflow/react";
 import {
+  FileTextIcon,
   GlobeIcon,
   MousePointerIcon,
+  MapPin,
 } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -18,6 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import { NodeType } from "@/generated/prisma";
 import { Separator } from "./ui/separator";
+
+const OUTPUT_NODE_TYPE = "OUTPUT" as NodeType;
 
 export type NodeTypeOption = {
   type: NodeType;
@@ -44,6 +48,12 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Stripe Event",
     description: "Runs the flow when a Stripe Event is captured",
     icon: "/logos/stripe.svg",
+  },
+  {
+    type: NodeType.RAZORPAY_PAYMENT_CAPTURED,
+    label: "Razorpay Event",
+    description: "Runs the flow when a Razorpay Payment is captured",
+    icon: "/logos/razorpay.png",
   },
 ];
 
@@ -83,6 +93,60 @@ const executionNodes: NodeTypeOption[] = [
     label: "Slack",
     description: "Send a message to Slack",
     icon: "/logos/slack.svg",
+  },
+  {
+    type: NodeType.NOTION_CREATE_PAGE,
+    label: "Notion",
+    description: "Create a page in a Notion database",
+    icon: "/logos/notion.png",
+  },
+  {
+    type: NodeType.WHATSAPP_SEND_MESSAGE,
+    label: "WhatsApp",
+    description: "Send a message via WhatsApp",
+    icon: "/logos/whatsapp.jpeg",
+  },
+  {
+    type: NodeType.RESEND_SEND_EMAIL,
+    label: "Resend",
+    description: "Send an email via Resend",
+    icon: "/logos/resend.png",
+  },
+  {
+    type: NodeType.GEMINI_CHAT,
+    label: "Gemini Chat",
+    description: "Generate content using Gemini 1.5 Pro",
+    icon: "/logos/gemini.svg",
+  },
+  {
+    type: NodeType.HUMAN_APPROVAL,
+    label: "Human Approval",
+    description: "Pause workflow for human approval",
+    icon: "/logos/logo.svg",
+  },
+  {
+    type: NodeType.POST_TO_X,
+    label: "Post to X",
+    description: "Publish a tweet to X (Twitter)",
+    icon: "/logos/x.svg",
+  },
+  {
+    type: NodeType.POST_TO_REDDIT,
+    label: "Post to Reddit",
+    description: "Publish a post to Reddit",
+    icon: "/logos/reddit.png",
+  },
+  {
+    type: NodeType.GOOGLE_MAPS_EXTRACTOR,
+    label: "Maps Extractor",
+    description: "Extract business leads from Google Maps",
+    icon: MapPin,
+  },
+  {
+    type: OUTPUT_NODE_TYPE,
+    label: "Output",
+    description: "Display and format results from previous nodes",
+    icon: FileTextIcon,
   },
 ];
 
