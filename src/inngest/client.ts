@@ -2,8 +2,8 @@ import { realtimeMiddleware } from "@inngest/realtime/middleware";
 import { Inngest } from "inngest";
 
 const eventKey = process.env.INNGEST_EVENT_KEY?.trim();
-const isInngestDev = process.env.INNGEST_DEV === "1";
 const isNodeDev = process.env.NODE_ENV !== "production";
+const isInngestDev = isNodeDev && process.env.INNGEST_DEV === "1";
 
 const getInngestEventKeyError = () => {
   if (!eventKey && !isInngestDev && !isNodeDev) {
@@ -25,6 +25,10 @@ const inngestConfigError = getInngestEventKeyError();
 
 if (inngestConfigError) {
   console.warn(inngestConfigError);
+}
+
+if (!isNodeDev && process.env.INNGEST_DEV === "1") {
+  console.warn("INNGEST_DEV is ignored in production. Remove it from Vercel and rely on INNGEST_EVENT_KEY for Cloud execution.");
 }
 
 export const inngest = new Inngest({

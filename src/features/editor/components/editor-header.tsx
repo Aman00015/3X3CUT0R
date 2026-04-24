@@ -38,7 +38,7 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
 
   return (
     <div className="ml-auto">
-      <Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
+      <Button type="button" size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
         <SaveIcon className="size-4" />
         Save
       </Button>
