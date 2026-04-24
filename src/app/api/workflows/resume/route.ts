@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { inngest } from "@/inngest/client";
+import { assertInngestEventSendConfigured, inngest } from "@/inngest/client";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    assertInngestEventSendConfigured();
+
     await inngest.send({
       name: "workflow/approval.received",
       data: { executionId, decision },
@@ -44,6 +46,10 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("Failed to send approval event", error);
-    return NextResponse.json({ error: "Failed to resume workflow" }, { status: 500 });
+
+    const errorMessage = error instanceof Error ? error.message : "Failed to resume workflow";
+    const status = errorMessage.includes("INNGEST_EVENT_KEY") ? 503 : 500;
+
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }

@@ -1,6 +1,6 @@
 import { Connection, Node } from "@/generated/prisma";
 import toposort from "toposort";
-import { inngest } from "./client";
+import { assertInngestEventSendConfigured, inngest } from "./client";
 import { createId } from "@paralleldrive/cuid2";
 
 export const topologicalSort = (
@@ -53,6 +53,8 @@ export const sendWorkflowExecution = async (data: {
   workflowId: string;
   [key: string]: any;
 }) => {
+  assertInngestEventSendConfigured();
+
   return inngest.send({
     name: "workflows/execute.workflow",
     data,
