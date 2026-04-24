@@ -12,7 +12,7 @@ export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const workflow = await prisma.workflow.findUniqueOrThrow({
+      const workflow = await prisma.workflow.findFirstOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
@@ -53,12 +53,18 @@ export const workflowsRouter = createTRPCRouter({
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
-      return prisma.workflow.delete({
+      return prisma.workflow.findFirstOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
-      })
+      }).then((workflow) =>
+        prisma.workflow.delete({
+          where: {
+            id: workflow.id,
+          },
+        }),
+      )
     }),
   update: protectedProcedure
     .input(
@@ -105,7 +111,7 @@ export const workflowsRouter = createTRPCRouter({
         ).values(),
       );
 
-      const workflow = await prisma.workflow.findUniqueOrThrow({
+      const workflow = await prisma.workflow.findFirstOrThrow({
         where: { id, userId: ctx.auth.user.id },
       });
 
@@ -152,16 +158,20 @@ export const workflowsRouter = createTRPCRouter({
     }),
   updateName: protectedProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
-    .mutation(({ ctx, input }) => {
-      return prisma.workflow.update({
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await prisma.workflow.findFirstOrThrow({
         where: { id: input.id, userId: ctx.auth.user.id },
+      });
+
+      return prisma.workflow.update({
+        where: { id: workflow.id },
         data: { name: input.name },
       });
     }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const workflow = await prisma.workflow.findUniqueOrThrow({
+      const workflow = await prisma.workflow.findFirstOrThrow({
         where: { id: input.id, userId: ctx.auth.user.id },
         include: { nodes: true, connections: true },
       });

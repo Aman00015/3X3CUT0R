@@ -28,11 +28,17 @@ export const credentialsRouter = createTRPCRouter({
   }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return prisma.credential.delete({
+    .mutation(async ({ ctx, input }) => {
+      const credential = await prisma.credential.findFirstOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
+        },
+      });
+
+      return prisma.credential.delete({
+        where: {
+          id: credential.id,
         },
       })
     }),
@@ -45,11 +51,15 @@ export const credentialsRouter = createTRPCRouter({
         value: z.string().min(1, "Value is required"),
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, name, type, value } = input;
 
-      return prisma.credential.update({
+      const credential = await prisma.credential.findFirstOrThrow({
         where: { id, userId: ctx.auth.user.id },
+      });
+
+      return prisma.credential.update({
+        where: { id: credential.id },
         data: {
           name,
           type,
@@ -59,8 +69,8 @@ export const credentialsRouter = createTRPCRouter({
     }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return prisma.credential.findUniqueOrThrow({
+    .query(async ({ ctx, input }) => {
+      return prisma.credential.findFirstOrThrow({
         where: { id: input.id, userId: ctx.auth.user.id },
       });
     }),
