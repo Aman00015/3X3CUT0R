@@ -13,15 +13,15 @@ Sentry.init({
       recordInputs: true,
       recordOutputs: true,
     }),
-    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+    Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
   ],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  tracesSampleRate: 0.1,
   sendDefaultPii: true,
 
   // Enable logs to be sent to Sentry
-  enableLogs: true,
+  enableLogs: false,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
