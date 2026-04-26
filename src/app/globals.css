@@ -66,6 +66,8 @@
   --shadow-opacity: var(--shadow-opacity);
   --color-shadow-color: var(--shadow-color);
   --color-destructive-foreground: var(--destructive-foreground);
+  --font-sans: var(--font-space-grotesk), "Space Grotesk", var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", var(--font-geist-mono), monospace;
 }
 
 :root {
@@ -127,6 +129,23 @@
     0px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
+  --yellow: #FFD600;
+  --orange: #FF6B35;
+  --bg-primary: #0A0A0A;
+  --text-light: #F5F5F0;
+  --text-gray: #888888;
+  --text-muted: #555555;
+  --text-dim: #444444;
+  --border-dark: #2D2D2D;
+  --border-subtle: #1D1D1D;
+}
+
+@utility font-grotesk {
+  font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+}
+
+@utility font-ibm-mono {
+  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
 }
 
 .dark {
