@@ -96,7 +96,7 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
     const approval = await step.waitForEvent(`wait-human-approval-${nodeId}`, {
       event: "workflow/approval.received",
       timeout: `${timeoutHours}h`,
-      if: `event.data.executionId == '${executionId}'`,
+      if: `event.data.executionId == "${executionId}"`,
     });
 
     if (!approval) {

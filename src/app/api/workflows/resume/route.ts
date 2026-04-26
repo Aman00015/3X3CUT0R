@@ -11,12 +11,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log(`[RESUME_ROUTE] Resuming workflow for executionId: ${executionId} with decision: ${decision}`);
+
     assertInngestEventSendConfigured();
 
     await inngest.send({
       name: "workflow/approval.received",
-      data: { executionId, decision },
+      data: { 
+        executionId: String(executionId), 
+        decision: String(decision) 
+      },
     });
+
+    console.log(`[RESUME_ROUTE] Event sent successfully to Inngest`);
 
     const isApproved = decision === "approve";
     const bgColor = isApproved ? "#10b981" : "#ef4444";

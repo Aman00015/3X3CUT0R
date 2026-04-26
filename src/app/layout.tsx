@@ -17,6 +17,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+});
+
 export const metadata: Metadata = {
   title: "3X3CUT0R | Workflow Automation",
   description: "The ultimate workflow automation engine.",
@@ -33,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased`}
       >
         <TRPCReactProvider>
           <NuqsAdapter>
