@@ -97,6 +97,16 @@ const credentialTypeOptions = [
     label: "Reddit",
     logo: "/logos/reddit.png",
   },
+  {
+    value: CredentialType.APIFY,
+    label: "Apify",
+    logo: "/logos/logo.svg",
+  },
+  {
+    value: CredentialType.GOOGLE_SHEETS,
+    label: "Google Sheets",
+    logo: "/logos/google.svg",
+  },
 ];
 
 interface CredentialFormProps {

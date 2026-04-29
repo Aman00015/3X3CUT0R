@@ -7,6 +7,8 @@ import {
   GlobeIcon,
   MousePointerIcon,
   MapPin,
+  Search,
+  LayoutGrid,
 } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -54,6 +56,18 @@ const triggerNodes: NodeTypeOption[] = [
     label: "Razorpay Event",
     description: "Runs the flow when a Razorpay Payment is captured",
     icon: "/logos/razorpay.png",
+  },
+  {
+    type: "CRON_TRIGGER" as NodeType,
+    label: "Daily Schedule",
+    description: "Runs the flow on a specific schedule",
+    icon: "/logos/schedule.svg",
+  },
+  {
+    type: NodeType.GOOGLE_SHEETS_TRIGGER,
+    label: "Google Sheets - New Row Trigger",
+    description: "Starts the flow when a new row is added to a sheet",
+    icon: "/logos/google.svg",
   },
 ];
 
@@ -122,7 +136,7 @@ const executionNodes: NodeTypeOption[] = [
     type: NodeType.HUMAN_APPROVAL,
     label: "Human Approval",
     description: "Pause workflow for human approval",
-    icon: "/logos/logo.svg",
+    icon: "/logos/approve.svg",
   },
   {
     type: NodeType.POST_TO_X,
@@ -137,10 +151,40 @@ const executionNodes: NodeTypeOption[] = [
     icon: "/logos/reddit.png",
   },
   {
-    type: NodeType.GOOGLE_MAPS_EXTRACTOR,
-    label: "Maps Extractor",
-    description: "Extract business leads from Google Maps",
-    icon: MapPin,
+    type: NodeType.APIFY,
+    label: "Apify",
+    description: "Extract leads using Apify actors",
+    icon: Search,
+  },
+  {
+    type: NodeType.GOOGLE_SHEETS_ACTION,
+    label: "Google Sheets - Add Row (Action)",
+    description: "Appends data as new rows to a sheet",
+    icon: "/logos/google.svg",
+  },
+  {
+    type: "GITHUB" as NodeType,
+    label: "GitHub",
+    description: "Interact with GitHub repositories",
+    icon: "/logos/github.svg",
+  },
+  {
+    type: "CONDITION" as NodeType,
+    label: "Condition",
+    description: "Branch the flow based on logic",
+    icon: "/logos/branch.svg",
+  },
+  {
+    type: "DELAY" as NodeType,
+    label: "Delay",
+    description: "Wait before continuing the flow",
+    icon: "/logos/delay.svg",
+  },
+  {
+    type: "TRANSFORM" as NodeType,
+    label: "Transform",
+    description: "Format and transform data using templates",
+    icon: "/logos/transform.svg",
   },
   {
     type: OUTPUT_NODE_TYPE,

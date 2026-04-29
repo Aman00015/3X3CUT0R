@@ -20,7 +20,11 @@ import { GeminiChatNode } from "@/features/executions/components/gemini-chat/nod
 import { HumanApprovalNode } from "@/features/executions/components/human-approval/node";
 import { PostToXNode } from "@/features/executions/components/post-to-x/node";
 import { PostToRedditNode } from "@/features/executions/components/post-to-reddit/node";
-import { GoogleMapsExtractorNode } from "@/features/executions/components/google-maps-extractor/node";
+import { ApifyNode } from "@/features/executions/components/apify/node";
+import { GoogleSheetsActionNode } from "@/features/executions/components/google-sheets/node";
+import { GoogleSheetsTriggerNode } from "@/features/triggers/components/google-sheets-trigger/node";
+
+import { CronTriggerNode, GitHubNode, ConditionNode, DelayNode, TransformNode } from "@/nodes";
 
 export const nodeComponents = {
   [NodeType.INITIAL]: InitialNode,
@@ -41,8 +45,15 @@ export const nodeComponents = {
   [NodeType.HUMAN_APPROVAL]: HumanApprovalNode,
   [NodeType.POST_TO_X]: PostToXNode,
   [NodeType.POST_TO_REDDIT]: PostToRedditNode,
-  [NodeType.GOOGLE_MAPS_EXTRACTOR]: GoogleMapsExtractorNode,
+  [NodeType.APIFY]: ApifyNode,
+  [NodeType.GOOGLE_SHEETS_TRIGGER]: GoogleSheetsTriggerNode,
+  [NodeType.GOOGLE_SHEETS_ACTION]: GoogleSheetsActionNode,
   [NodeType.OUTPUT]: OutputNode,
-} as const satisfies NodeTypes;
+  [NodeType.CRON_TRIGGER]: CronTriggerNode as any,
+  [NodeType.GITHUB]: GitHubNode as any,
+  [NodeType.CONDITION]: ConditionNode as any,
+  [NodeType.DELAY]: DelayNode as any,
+  [NodeType.TRANSFORM]: TransformNode as any,
+} as const;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

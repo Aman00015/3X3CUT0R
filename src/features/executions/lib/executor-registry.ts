@@ -18,7 +18,9 @@ import { geminiChatExecutor } from "../components/gemini-chat/executor";
 import { humanApprovalExecutor } from "../components/human-approval/executor";
 import { postToXExecutor } from "../components/post-to-x/executor";
 import { postToRedditExecutor } from "../components/post-to-reddit/executor";
-import { googleMapsExtractorExecutor } from "../components/google-maps-extractor/executor";
+import { apifyExecutor } from "../components/apify/executor";
+import { googleSheetsTriggerExecutor } from "@/features/triggers/components/google-sheets-trigger/executor";
+import { googleSheetsActionExecutor } from "../components/google-sheets/executor";
 
 // Removing OUTPUT_NODE_TYPE constant since OUTPUT is now in the enum
 
@@ -42,7 +44,9 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.HUMAN_APPROVAL]: humanApprovalExecutor,
   [NodeType.POST_TO_X]: postToXExecutor,
   [NodeType.POST_TO_REDDIT]: postToRedditExecutor,
-  [NodeType.GOOGLE_MAPS_EXTRACTOR]: googleMapsExtractorExecutor,
+  [NodeType.APIFY]: apifyExecutor,
+  [NodeType.GOOGLE_SHEETS_TRIGGER]: googleSheetsTriggerExecutor,
+  [NodeType.GOOGLE_SHEETS_ACTION]: googleSheetsActionExecutor,
   [NodeType.OUTPUT]: outputExecutor,
 };
 

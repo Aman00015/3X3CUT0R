@@ -22,7 +22,9 @@ import { geminiChatChannel } from "./channels/gemini-chat";
 import { humanApprovalChannel } from "./channels/human-approval";
 import { postToXChannel } from "./channels/post-to-x";
 import { postToRedditChannel } from "./channels/post-to-reddit";
-import { googleMapsExtractorChannel } from "./channels/google-maps-extractor";
+import { apifyChannel } from "./channels/apify";
+import { googleSheetsTriggerChannel } from "./channels/google-sheets-trigger";
+import { googleSheetsActionChannel } from "./channels/google-sheets-action";
 
 export const executeWorkflow = inngest.createFunction(
   { 
@@ -44,9 +46,9 @@ export const executeWorkflow = inngest.createFunction(
     channels: [
       httpRequestChannel(),
       manualTriggerChannel(),
-      googleFormTriggerChannel(),
-      stripeTriggerChannel(),
-      googleMapsExtractorChannel(),
+      googleSheetsTriggerChannel(),
+      googleSheetsActionChannel(),
+      apifyChannel(),
       geminiChannel(),
       openAiChannel(),
       anthropicChannel(),
