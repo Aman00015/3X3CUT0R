@@ -30,7 +30,7 @@ const apifySchema = z.object({
   variableName: z.string().min(1, "Variable name is required"),
   credentialId: z.string().min(1, "Credential is required"),
   searchQuery: z.string().min(1, "Search query is required"),
-  maxResults: z.coerce.number().min(1).max(1000).default(50),
+  maxResults: z.coerce.number().min(1).max(1000),
 });
 
 export type ApifyFormValues = z.infer<typeof apifySchema>;
@@ -54,7 +54,7 @@ export function ApifyDialog({
       variableName: defaultValues?.variableName || "apify_results",
       credentialId: defaultValues?.credentialId || "",
       searchQuery: defaultValues?.searchQuery || "",
-      maxResults: defaultValues?.maxResults || 50,
+      maxResults: defaultValues?.maxResults ?? 5,
     },
   });
 
@@ -64,7 +64,7 @@ export function ApifyDialog({
         variableName: defaultValues.variableName || "apify_results",
         credentialId: defaultValues.credentialId || "",
         searchQuery: defaultValues.searchQuery || "",
-        maxResults: defaultValues.maxResults || 50,
+        maxResults: defaultValues.maxResults ?? 5,
       });
     }
   }, [open, defaultValues, form]);
