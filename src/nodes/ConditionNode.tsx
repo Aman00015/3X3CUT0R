@@ -95,7 +95,7 @@ export function ConditionNode({ id, data, selected }: any) {
               <Image src="/logos/branch.svg" alt="Condition icon" width={16} height={16} />
               
               <div className="flex flex-col gap-1 mt-2">
-                {nodeData.routes.map((route, idx) => (
+                {nodeData.routes.map((route: string, idx: number) => (
                   <div key={route} className="flex justify-end items-center relative h-5 pr-2">
                     <span className="text-[10px] text-muted-foreground mr-1 capitalize">{route}</span>
                     <BaseHandle 
