@@ -24,6 +24,8 @@ import { googleSheetsActionExecutor } from "../components/google-sheets/executor
 
 // Removing OUTPUT_NODE_TYPE constant since OUTPUT is now in the enum
 
+const noOpExecutor: NodeExecutor = async ({ context }) => context;
+
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.INITIAL]: manualTriggerExecutor,
   [NodeType.INTIAL]: manualTriggerExecutor,
@@ -48,6 +50,11 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.GOOGLE_SHEETS_TRIGGER]: googleSheetsTriggerExecutor,
   [NodeType.GOOGLE_SHEETS_ACTION]: googleSheetsActionExecutor,
   [NodeType.OUTPUT]: outputExecutor,
+  [NodeType.CRON_TRIGGER]: noOpExecutor,
+  [NodeType.GITHUB]: noOpExecutor,
+  [NodeType.CONDITION]: noOpExecutor,
+  [NodeType.DELAY]: noOpExecutor,
+  [NodeType.TRANSFORM]: noOpExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {
