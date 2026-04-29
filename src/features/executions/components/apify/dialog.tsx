@@ -30,7 +30,7 @@ const apifySchema = z.object({
   variableName: z.string().min(1, "Variable name is required"),
   credentialId: z.string().min(1, "Credential is required"),
   searchQuery: z.string().min(1, "Search query is required"),
-  maxResults: z.coerce.number().min(1).max(1000),
+  maxResults: z.number().min(1).max(1000),
 });
 
 export type ApifyFormValues = z.infer<typeof apifySchema>;
@@ -145,7 +145,11 @@ export function ApifyDialog({
                 <FormItem>
                   <FormLabel>Max Results</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" />
+                    <Input 
+                      {...field} 
+                      type="number" 
+                      onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                    />
                   </FormControl>
                   <FormDescription>
                     Maximum number of places to crawl.
