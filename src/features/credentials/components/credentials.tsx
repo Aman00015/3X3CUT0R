@@ -125,6 +125,8 @@ const credentialLogos: Record<CredentialType, string> = {
   [CredentialType.RESEND]: "/logos/resend.png",
   [CredentialType.TWITTER]: "/logos/x.svg",
   [CredentialType.REDDIT]: "/logos/reddit.png",
+  [CredentialType.APIFY]: "/logos/apify.png",
+  [CredentialType.GOOGLE_SHEETS]: "/logos/google-sheets.png",
 };
 
 export const CredentialItem = ({

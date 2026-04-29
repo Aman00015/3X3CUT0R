@@ -100,12 +100,12 @@ const credentialTypeOptions = [
   {
     value: CredentialType.APIFY,
     label: "Apify",
-    logo: "/logos/logo.svg",
+    logo: "/logos/apify.png",
   },
   {
     value: CredentialType.GOOGLE_SHEETS,
     label: "Google Sheets",
-    logo: "/logos/google.svg",
+    logo: "/logos/google-sheets.png",
   },
 ];
 
