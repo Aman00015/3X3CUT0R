@@ -17,31 +17,49 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
 const githubDataSchema = z.object({
-  label: z.string().default('GitHub'),
+  label: z.string(),
   auth: z.object({
-    method: z.enum(['token', 'app', 'oauth']).default('token'),
-    token: z.string().default(''),
-    verified: z.boolean().default(false),
-    username: z.string().default(''),
-  }).default({}),
-  owner: z.string().default(''),
-  repo: z.string().default(''),
-  action: z.string().default('create_issue'),
-  issueTitle: z.string().default(''),
-  issueBody: z.string().default(''),
-  issueLabels: z.array(z.string()).default([]),
-  issueAssignees: z.array(z.string()).default([]),
-  notes: z.string().default(''),
+    method: z.enum(['token', 'app', 'oauth']),
+    token: z.string(),
+    verified: z.boolean(),
+    username: z.string(),
+  }),
+  owner: z.string(),
+  repo: z.string(),
+  action: z.string(),
+  issueTitle: z.string(),
+  issueBody: z.string(),
+  issueLabels: z.array(z.string()),
+  issueAssignees: z.array(z.string()),
+  notes: z.string(),
 });
 
 export type GitHubData = z.infer<typeof githubDataSchema>;
+
+const DEFAULT_GITHUB_DATA: GitHubData = {
+  label: 'GitHub',
+  auth: {
+    method: 'token',
+    token: '',
+    verified: false,
+    username: '',
+  },
+  owner: '',
+  repo: '',
+  action: 'create_issue',
+  issueTitle: '',
+  issueBody: '',
+  issueLabels: [],
+  issueAssignees: [],
+  notes: '',
+};
 
 export function GitHubNode({ id, data, selected }: any) {
   const { updateNodeData } = useReactFlow();
   const [panelOpen, setPanelOpen] = useState(false);
   const [testResult, setTestResult] = useState('');
 
-  const nodeData = githubDataSchema.parse(data || {});
+  const nodeData = { ...DEFAULT_GITHUB_DATA, ...data };
 
   const form = useForm<GitHubData>({
     resolver: zodResolver(githubDataSchema),

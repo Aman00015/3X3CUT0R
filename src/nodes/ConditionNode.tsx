@@ -21,22 +21,31 @@ import { NodeStatusIndicator } from "@/components/react-flow/node-status-indicat
 import Image from "next/image";
 
 const conditionDataSchema = z.object({
-  label: z.string().default('Condition'),
-  expression: z.string().default(''),
-  routes: z.array(z.string()).default(['true', 'false', 'default']),
-  rules: z.array(z.any()).default([{ route: 'true', operator: 'equals', value: 'true' }]),
-  evaluationMode: z.enum(['first_match', 'all_matches']).default('first_match'),
-  notes: z.string().default(''),
+  label: z.string(),
+  expression: z.string(),
+  routes: z.array(z.string()),
+  rules: z.array(z.any()),
+  evaluationMode: z.enum(['first_match', 'all_matches']),
+  notes: z.string(),
 });
 
 export type ConditionData = z.infer<typeof conditionDataSchema>;
+
+const DEFAULT_CONDITION_DATA: ConditionData = {
+  label: 'Condition',
+  expression: '',
+  routes: ['true', 'false', 'default'],
+  rules: [{ route: 'true', operator: 'equals', value: 'true' }],
+  evaluationMode: 'first_match',
+  notes: '',
+};
 
 export function ConditionNode({ id, data, selected }: any) {
   const { updateNodeData } = useReactFlow();
   const [panelOpen, setPanelOpen] = useState(false);
   const [routesInput, setRoutesInput] = useState('');
 
-  const nodeData = conditionDataSchema.parse(data || {});
+  const nodeData = { ...DEFAULT_CONDITION_DATA, ...data };
 
   const form = useForm<ConditionData>({
     resolver: zodResolver(conditionDataSchema),

@@ -18,20 +18,26 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const transformDataSchema = z.object({
-  label: z.string().default('Transform'),
-  outputVariable: z.string().optional().default(''),
+  label: z.string(),
+  outputVariable: z.string(),
   templateExpression: z.string().min(1, { message: "Expression is required" }),
-  notes: z.string().default(''),
+  notes: z.string(),
 });
 
 type TransformData = z.infer<typeof transformDataSchema>;
+
+const DEFAULT_TRANSFORM_DATA: TransformData = {
+  label: 'Transform',
+  outputVariable: '',
+  templateExpression: '',
+  notes: '',
+};
 
 export function TransformNode({ id, data, selected }: any) {
   const [panelOpen, setPanelOpen] = useState(false);
   const { updateNodeData } = useReactFlow();
 
-  // Parse data with defaults
-  const nodeData = transformDataSchema.parse(data || {});
+  const nodeData = { ...DEFAULT_TRANSFORM_DATA, ...data };
 
   const form = useForm<TransformData>({
     resolver: zodResolver(transformDataSchema),

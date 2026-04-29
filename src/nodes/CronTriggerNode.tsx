@@ -19,18 +19,30 @@ import cronstrue from 'cronstrue';
 import parser from 'cron-parser';
 
 const cronDataSchema = z.object({
-  label: z.string().default('Daily Schedule'),
-  mode: z.enum(['simple', 'advanced']).default('simple'),
-  frequency: z.enum(['hourly', 'daily', 'weekly', 'monthly', 'yearly']).default('daily'),
-  time: z.string().default('09:00'),
-  timezone: z.string().default('auto'),
-  active: z.boolean().default(true),
-  maxExecutions: z.number().nullable().default(null),
-  cronExpression: z.string().default('0 9 * * *'),
-  notes: z.string().default(''),
+  label: z.string(),
+  mode: z.enum(['simple', 'advanced']),
+  frequency: z.enum(['hourly', 'daily', 'weekly', 'monthly', 'yearly']),
+  time: z.string(),
+  timezone: z.string(),
+  active: z.boolean(),
+  maxExecutions: z.number().nullable(),
+  cronExpression: z.string(),
+  notes: z.string(),
 });
 
 export type CronData = z.infer<typeof cronDataSchema>;
+
+const DEFAULT_CRON_DATA: CronData = {
+  label: 'Daily Schedule',
+  mode: 'simple',
+  frequency: 'daily',
+  time: '09:00',
+  timezone: 'auto',
+  active: true,
+  maxExecutions: null,
+  cronExpression: '0 9 * * *',
+  notes: '',
+};
 
 export function CronTriggerNode({ id, data, selected }: any) {
   const { updateNodeData } = useReactFlow();
@@ -38,7 +50,7 @@ export function CronTriggerNode({ id, data, selected }: any) {
   const [nextRuns, setNextRuns] = useState<string[]>([]);
   const [cronError, setCronError] = useState('');
 
-  const nodeData = cronDataSchema.parse(data || {});
+  const nodeData = { ...DEFAULT_CRON_DATA, ...data };
 
   const form = useForm<CronData>({
     resolver: zodResolver(cronDataSchema),

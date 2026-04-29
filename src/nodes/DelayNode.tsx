@@ -17,29 +17,46 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const delayDataSchema = z.object({
-  label: z.string().default('Delay'),
-  mode: z.enum(['fixed', 'until', 'condition']).default('fixed'),
-  hours: z.number().default(0),
-  minutes: z.number().default(5),
-  seconds: z.number().default(0),
-  untilDate: z.string().default(''),
-  untilTime: z.string().default(''),
-  timezone: z.string().default('auto'),
-  resumeCondition: z.string().default('business_hours'),
-  maxWaitHours: z.number().nullable().default(null),
-  passThroughData: z.boolean().default(true),
-  appendMetadata: z.boolean().default(false),
-  isWaiting: z.boolean().default(false),
-  notes: z.string().default(''),
+  label: z.string(),
+  mode: z.enum(['fixed', 'until', 'condition']),
+  hours: z.number(),
+  minutes: z.number(),
+  seconds: z.number(),
+  untilDate: z.string(),
+  untilTime: z.string(),
+  timezone: z.string(),
+  resumeCondition: z.string(),
+  maxWaitHours: z.number().nullable(),
+  passThroughData: z.boolean(),
+  appendMetadata: z.boolean(),
+  isWaiting: z.boolean(),
+  notes: z.string(),
 });
 
 export type DelayData = z.infer<typeof delayDataSchema>;
+
+const DEFAULT_DELAY_DATA: DelayData = {
+  label: 'Delay',
+  mode: 'fixed',
+  hours: 0,
+  minutes: 5,
+  seconds: 0,
+  untilDate: '',
+  untilTime: '',
+  timezone: 'auto',
+  resumeCondition: 'business_hours',
+  maxWaitHours: null,
+  passThroughData: true,
+  appendMetadata: false,
+  isWaiting: false,
+  notes: '',
+};
 
 export function DelayNode({ id, data, selected }: any) {
   const { updateNodeData } = useReactFlow();
   const [panelOpen, setPanelOpen] = useState(false);
 
-  const nodeData = delayDataSchema.parse(data || {});
+  const nodeData = { ...DEFAULT_DELAY_DATA, ...data };
 
   const form = useForm<DelayData>({
     resolver: zodResolver(delayDataSchema),
