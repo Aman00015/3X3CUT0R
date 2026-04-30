@@ -33,10 +33,16 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
   }
 
   const timeoutHours = parseInt(data.timeoutHours || "24", 10);
-  const preview = interpolate(data.previewContent || "Please approve this workflow step.", context);
+
+  // Handlebars silently drops unknown variables (e.g. {{gemini_chat.post_content}} when that
+  // key doesn't exist in context). Show a clear fallback instead of the old confusing message.
+  const rawPreview = interpolate(data.previewContent || "", context);
+  const preview = rawPreview.trim()
+    ? rawPreview.trim()
+    : "(No preview content was provided, or the template variable returned empty.)";
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 
   if (!resendApiKey) {
     await publish(humanApprovalChannel().status({ nodeId, status: "error" }));
@@ -46,30 +52,92 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
   const approveUrl = `${appUrl}/api/workflows/resume?executionId=${executionId}&decision=approve`;
   const rejectUrl = `${appUrl}/api/workflows/resume?executionId=${executionId}&decision=reject`;
 
-  const displayContent = preview.trim() || "<em>(No preview content provided)</em>";
+  // Plain-text fallback — mobile clients that strip HTML still show clickable URLs
+  const textBody = [
+    "Workflow Approval Required",
+    "",
+    "A workflow execution is paused and waiting for your decision.",
+    "",
+    "--- Review Content ---",
+    preview,
+    "----------------------",
+    "",
+    `Approve & Continue: ${approveUrl}`,
+    `Reject Workflow:    ${rejectUrl}`,
+    "",
+    `Execution ID: ${executionId}`,
+  ].join("\n");
 
-  const htmlBody = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e4e4e7; border-radius: 8px; overflow: hidden;">
-      <div style="background-color: #f8fafc; padding: 24px; border-bottom: 1px solid #e4e4e7;">
-        <h2 style="margin: 0; color: #0f172a;">Workflow Approval Required</h2>
-        <p style="margin: 8px 0 0 0; color: #64748b;">A workflow execution is paused and waiting for your decision.</p>
-      </div>
-      
-      <div style="padding: 24px;">
-        <h3 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">Review Content</h3>
-        <div style="background: #f1f5f9; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; line-height: 1.5; color: #334155; white-space: pre-wrap;">${displayContent}</div>
-        
-        <div style="margin-top: 24px; display: flex; gap: 12px;">
-          <a href="${approveUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Approve & Continue</a>
-          <a href="${rejectUrl}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-left: 10px;">Reject Workflow</a>
-        </div>
-      </div>
-      
-      <div style="background-color: #f8fafc; padding: 16px; border-top: 1px solid #e4e4e7; text-align: center;">
-        <p style="margin: 0; font-size: 12px; color: #94a3b8;">Execution ID: ${executionId}</p>
-      </div>
-    </div>
-  `;
+  // HTML email — table-based button layout required for mobile email clients.
+  // Gmail on Android and Apple Mail on iOS strip display:flex/display:grid,
+  // making flex-based buttons collapse or disappear. Tables are the only
+  // reliable cross-client layout for email buttons.
+  const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Approval Required</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;padding:24px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e4e4e7;border-radius:8px;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#f8fafc;padding:24px;border-bottom:1px solid #e4e4e7;border-radius:8px 8px 0 0;">
+              <h2 style="margin:0;color:#0f172a;font-size:20px;font-weight:700;">Workflow Approval Required</h2>
+              <p style="margin:8px 0 0 0;color:#64748b;font-size:14px;">A workflow execution is paused and waiting for your decision.</p>
+            </td>
+          </tr>
+
+          <!-- Preview content -->
+          <tr>
+            <td style="padding:24px 24px 16px 24px;">
+              <p style="margin:0 0 10px 0;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;font-weight:700;">Review Content</p>
+              <div style="background:#f1f5f9;padding:16px;border-radius:6px;font-family:Courier New,Courier,monospace;font-size:13px;line-height:1.6;color:#334155;white-space:pre-wrap;word-break:break-word;">${preview}</div>
+            </td>
+          </tr>
+
+          <!-- Buttons — each in its own table row for mobile safety -->
+          <tr>
+            <td style="padding:8px 24px 24px 24px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="padding-bottom:12px;">
+                    <a href="${approveUrl}"
+                       style="display:block;background-color:#10b981;color:#ffffff;padding:14px 24px;text-decoration:none;border-radius:6px;font-weight:700;font-size:15px;text-align:center;line-height:1.2;">
+                      &#10003; Approve &amp; Continue
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <a href="${rejectUrl}"
+                       style="display:block;background-color:#ef4444;color:#ffffff;padding:14px 24px;text-decoration:none;border-radius:6px;font-weight:700;font-size:15px;text-align:center;line-height:1.2;">
+                      &#10007; Reject Workflow
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8fafc;padding:14px 24px;border-top:1px solid #e4e4e7;border-radius:0 0 8px 8px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#94a3b8;">Execution ID: ${executionId}</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
   try {
     await step.run(`send-approval-email-${nodeId}`, async () => {
@@ -83,6 +151,7 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
           to: [approverEmail],
           subject: "Action Required: Workflow Approval",
           html: htmlBody,
+          text: textBody,
         },
         throwHttpErrors: false,
       });
