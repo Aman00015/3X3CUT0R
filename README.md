@@ -10,11 +10,8 @@
   [![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
   [![Inngest](https://img.shields.io/badge/Inngest-Orchestration-000000?style=for-the-badge&logo=inngest)](https://www.inngest.com/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-
-
+  
 </div>
-
----
 
 ## 🚀 Overview
 
