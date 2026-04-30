@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import cronstrue from 'cronstrue';
-import parser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 
 const cronDataSchema = z.object({
   label: z.string(),
@@ -68,7 +68,7 @@ export function CronTriggerNode({ id, data, selected }: any) {
     const subscription = form.watch((value, { name, type }) => {
       if (value.mode === 'advanced' && value.cronExpression) {
         try {
-          const interval = parser.parseExpression(value.cronExpression);
+          const interval = CronExpressionParser.parse(value.cronExpression);
           const runs = [];
           for (let i = 0; i < 5; i++) {
             runs.push(interval.next().toString());
