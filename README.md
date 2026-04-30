@@ -20,6 +20,19 @@
 
 **3X3CUT0R** is a modern, enterprise-grade workflow automation engine designed to bridge the gap between complex logic and visual design. It allows users to build, manage, and execute sophisticated automation pipelines through an intuitive, node-based visual editor.
 
+<div align="center">
+  <table style="width: 100%; border-collapse: collapse; border: none;">
+    <tr>
+      <td width="50%" style="padding: 5px; border: none;"><img src="public/1.png" alt="Dashboard Screenshot 1" width="100%"/></td>
+      <td width="50%" style="padding: 5px; border: none;"><img src="public/2.png" alt="Workflow Editor Screenshot 2" width="100%"/></td>
+    </tr>
+    <tr>
+      <td width="50%" style="padding: 5px; border: none;"><img src="public/3.png" alt="Execution Logs Screenshot 3" width="100%"/></td>
+      <td width="50%" style="padding: 5px; border: none;"><img src="public/4.png" alt="Settings Screenshot 4" width="100%"/></td>
+    </tr>
+  </table>
+</div>
+
 Whether it's automating lead generation with AI, orchestrating multi-platform social media posts, or managing complex human-in-the-loop approvals, **3X3CUT0R** provides a resilient and scalable foundation for all your automation needs.
 
 ### ✨ Key Features
