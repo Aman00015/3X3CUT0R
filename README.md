@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" alt="3X3CUT0R Logo" width="120" height="120" />
+  <img src="public/logos/logo.svg" alt="3X3CUT0R Logo" width="120" height="120" />
 
   # 3X3CUT0R (EXECUTOR)
 
@@ -11,7 +11,7 @@
   [![Inngest](https://img.shields.io/badge/Inngest-Orchestration-000000?style=for-the-badge&logo=inngest)](https://www.inngest.com/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-  [Landing Page](https://3x3cut0r.vercel.app) • [Documentation](CONFIGURATION_GUIDE.md) • [Report Bug](https://github.com/Mansur00015/3X3CUT0R/issues)
+
 </div>
 
 ---
@@ -48,8 +48,6 @@ Whether it's automating lead generation with AI, orchestrating multi-platform so
 - **🛡️ Secure Credential Management**: Encrypted storage for API keys and OAuth tokens using enterprise-grade encryption.
 - **📈 Scalable Infrastructure**: Built on **Inngest**, ensuring workflows are durable, retriable, and capable of handling high concurrency.
 
----
-
 ## 🛠️ Tech Stack
 
 ### Frontend
@@ -71,7 +69,6 @@ Whether it's automating lead generation with AI, orchestrating multi-platform so
 - **Providers**: Google Gemini, Anthropic Claude, OpenAI GPT
 - **Monitoring**: [Sentry](https://sentry.io/)
 
----
 
 ## 📐 Architecture
 
@@ -97,8 +94,6 @@ graph TD
     M -- No --> N[Finalize Execution Status]
 ```
 
----
-
 ## 🚦 Getting Started
 
 ### Prerequisites
@@ -110,7 +105,7 @@ graph TD
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Mansur00015/3X3CUT0R.git
+   git clone https://github.com/Aman00015/3X3CUT0R.git
    cd 3X3CUT0R
    ```
 
@@ -136,8 +131,6 @@ graph TD
    npm run dev:all
    ```
 
----
-
 ## ⚙️ Environment Configuration
 
 | Key | Description |
@@ -148,9 +141,6 @@ graph TD
 | `BETTER_AUTH_SECRET` | Secret for authentication encryption. |
 | `NEXT_PUBLIC_APP_URL` | The base URL of your application. |
 
-*For a full list of integration-specific keys, see the [Configuration Guide](CONFIGURATION_GUIDE.md).*
-
----
 
 ## 📁 Project Structure
 
@@ -167,15 +157,3 @@ graph TD
 ├── public/             # Static Assets
 └── inngest/            # Workflow Orchestration Functions
 ```
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-<div align="center">
-  Built with ❤️ by [Aman (Mansur)](https://github.com/Mansur00015)
-</div>
