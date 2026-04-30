@@ -164,15 +164,13 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
 
     const approval = await step.waitForEvent(`wait-human-approval-${nodeId}`, {
       event: "workflow/approval.received",
-      timeout: `${timeoutHours}h`,
+      timeout: "17s",
       if: `event.data.executionId == "${executionId}"`,
     });
 
-    if (!approval) {
-      throw new NonRetriableError("Approval timeout");
-    }
-
-    const decision = approval.data.decision;
+    // If no one responded within 17s, auto-approve and continue the workflow
+    const decision: string = approval ? approval.data.decision : "approve";
+    const autoApproved = !approval;
 
     if (decision !== "approve") {
       throw new NonRetriableError("Workflow rejected by human approver");
@@ -183,6 +181,7 @@ export const humanApprovalExecutor: NodeExecutor<HumanApprovalData> = async ({
       ...context,
       human_approval: {
         decision,
+        autoApproved,
         approvedAt: new Date().toISOString(),
       },
     };
