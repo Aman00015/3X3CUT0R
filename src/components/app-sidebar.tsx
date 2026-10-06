@@ -7,6 +7,7 @@ import {
   KeyIcon,
   LogOutIcon,
   StarIcon,
+  Users2Icon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,9 +22,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuBadge,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 
 const menuItems = [
   {
@@ -44,14 +48,30 @@ const menuItems = [
         icon: HistoryIcon,
         url: "/executions",
       },
+      {
+        title: "Shared with me",
+        icon: Users2Icon,
+        url: "/shared",
+      },
     ],
   }
 ];
+
+// Live badge count for shared workflows
+const useSharedCount = () => {
+  const trpc = useTRPC();
+  const { data } = useQuery({
+    ...trpc.workflows.getShared.queryOptions(),
+    staleTime: 30_000,
+  });
+  return data?.length ?? 0;
+};
 
 export const AppSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
+  const sharedCount = useSharedCount();
 
   return (
     <Sidebar collapsible="icon">
@@ -93,6 +113,9 @@ export const AppSidebar = () => {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                    {item.url === "/shared" && sharedCount > 0 && (
+                      <SidebarMenuBadge>{sharedCount}</SidebarMenuBadge>
+                    )}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

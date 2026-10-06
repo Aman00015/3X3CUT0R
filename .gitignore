@@ -46,3 +46,9 @@ next-env.d.ts
 # Sentry Config File
 .env.sentry-build-plugin
 /mordern design
+additionals.md
+issue.md
+plan.md
+run.bat
+mprocs.log
+mprocs.log
