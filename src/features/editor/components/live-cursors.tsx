@@ -1,6 +1,6 @@
 "use client";
 
-import { useOthers } from "@liveblocks/react-flow";
+import { useOthers } from "@liveblocks/react/suspense";
 import { useViewport } from "@xyflow/react";
 
 // Assign consistent colors per user id
