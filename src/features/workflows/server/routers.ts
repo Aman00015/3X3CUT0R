@@ -12,12 +12,19 @@ export const workflowsRouter = createTRPCRouter({
   execute: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const workflow = await prisma.workflow.findFirstOrThrow({
+      const workflow = await prisma.workflow.findFirst({
         where: {
           id: input.id,
-          userId: ctx.auth.user.id,
+          OR: [
+            { userId: ctx.auth.user.id },
+            { shares: { some: { userId: ctx.auth.user.id, role: "EDITOR" } } },
+          ],
         },
       });
+
+      if (!workflow) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found or access denied" });
+      }
 
       try {
         await sendWorkflowExecution({
@@ -35,7 +42,7 @@ export const workflowsRouter = createTRPCRouter({
 
       return workflow;
     }),
-  create: premiumProcedure.mutation(({ ctx }) => {
+  create: protectedProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
       data: {
         name: generateSlug(3),
@@ -52,24 +59,28 @@ export const workflowsRouter = createTRPCRouter({
   }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return prisma.workflow.findFirstOrThrow({
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await prisma.workflow.findFirst({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
-      }).then((workflow) =>
-        prisma.workflow.delete({
-          where: {
-            id: workflow.id,
-          },
-        }),
-      )
+      });
+
+      if (!workflow) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found or access denied" });
+      }
+
+      return prisma.workflow.delete({
+        where: {
+          id: workflow.id,
+        },
+      });
     }),
   update: protectedProcedure
     .input(
-      z.object({ 
-        id: z.string(), 
+      z.object({
+        id: z.string(),
         nodes: z.array(
           z.object({
             id: z.string(),
@@ -111,9 +122,19 @@ export const workflowsRouter = createTRPCRouter({
         ).values(),
       );
 
-      const workflow = await prisma.workflow.findFirstOrThrow({
-        where: { id, userId: ctx.auth.user.id },
+      const workflow = await prisma.workflow.findFirst({
+        where: {
+          id,
+          OR: [
+            { userId: ctx.auth.user.id },
+            { shares: { some: { userId: ctx.auth.user.id, role: "EDITOR" } } },
+          ],
+        },
       });
+
+      if (!workflow) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found or access denied" });
+      }
 
       // Transaction to ensure consistency
       return await prisma.$transaction(async (tx) => {
@@ -160,7 +181,13 @@ export const workflowsRouter = createTRPCRouter({
     .input(z.object({ id: z.string(), name: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const workflow = await prisma.workflow.findFirstOrThrow({
-        where: { id: input.id, userId: ctx.auth.user.id },
+        where: {
+          id: input.id,
+          OR: [
+            { userId: ctx.auth.user.id },
+            { shares: { some: { userId: ctx.auth.user.id, role: "EDITOR" } } },
+          ],
+        },
       });
 
       return prisma.workflow.update({
@@ -171,10 +198,20 @@ export const workflowsRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const workflow = await prisma.workflow.findFirstOrThrow({
-        where: { id: input.id, userId: ctx.auth.user.id },
+      const workflow = await prisma.workflow.findFirst({
+        where: {
+          id: input.id,
+          OR: [
+            { userId: ctx.auth.user.id },
+            { shares: { some: { userId: ctx.auth.user.id } } },
+          ],
+        },
         include: { nodes: true, connections: true },
       });
+
+      if (!workflow) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Workflow not found or access denied" });
+      }
 
       // Transform server nodes to react-flow compatible nodes
       const nodes: Node[] = workflow.nodes.map((node) => ({
@@ -219,7 +256,7 @@ export const workflowsRouter = createTRPCRouter({
         prisma.workflow.findMany({
           skip: (page - 1) * pageSize,
           take: pageSize,
-          where: { 
+          where: {
             userId: ctx.auth.user.id,
             name: {
               contains: search,
@@ -255,4 +292,25 @@ export const workflowsRouter = createTRPCRouter({
         hasPreviousPage,
       };
     }),
+  getShared: protectedProcedure.query(async ({ ctx }) => {
+    const shares = await prisma.workflowShare.findMany({
+      where: { userId: ctx.auth.user.id },
+      include: {
+        workflow: {
+          select: {
+            id: true,
+            name: true,
+            updatedAt: true,
+            user: { select: { id: true, name: true, email: true, image: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return shares.map((share) => ({
+      ...share.workflow,
+      role: share.role,
+    }));
+  }),
 });
