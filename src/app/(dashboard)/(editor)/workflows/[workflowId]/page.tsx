@@ -3,6 +3,7 @@ import {
   EditorError, 
   EditorLoading
 } from "@/features/editor/components/editor";
+import { LiveblocksRoom } from "@/features/editor/components/liveblocks-room";
 import { EditorHeader } from "@/features/editor/components/editor-header";
 import { prefetchWorkflow } from "@/features/workflows/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
@@ -28,7 +29,9 @@ const Page = async ({ params }: PageProps) => {
         <Suspense fallback={<EditorLoading />}>
           <EditorHeader workflowId={workflowId} />
           <main className="flex-1">
-            <Editor workflowId={workflowId} />
+            <LiveblocksRoom workflowId={workflowId}>
+              <Editor workflowId={workflowId} />
+            </LiveblocksRoom>
           </main>
         </Suspense>
       </ErrorBoundary>

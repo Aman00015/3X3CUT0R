@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
+import { authClient } from "@/lib/auth-client"
 const links = [
-  { label: "FEATURES",  section: "features"  },
-  { label: "COMPARE",   section: "comparison"},
-  { label: "SHOWCASE",  section: "showcase"  },
-  { label: "FAQ",       section: "faq"       },
-  { label: "PRICING",   section: "pricing"   },
+  { label: "FEATURES", section: "features" },
+  { label: "COMPARE", section: "comparison" },
+  { label: "SHOWCASE", section: "showcase" },
+  { label: "FAQ", section: "faq" },
+  { label: "PRICING", section: "pricing" },
 ];
 
 function scrollTo(id: string) {
@@ -16,10 +16,12 @@ function scrollTo(id: string) {
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled]           = useState(false);
-  const [active, setActive]               = useState("");
-  const [menuOpen, setMenuOpen]           = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
+  // fetch the auth session
+  const { data: session } = authClient.useSession();
   /* ── scroll detection ── */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -50,10 +52,10 @@ export default function Navbar() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background:       scrolled ? "rgba(10,10,10,0.88)" : "rgba(10,10,10,1)",
-        backdropFilter:   scrolled ? "blur(14px)"          : "none",
-        WebkitBackdropFilter: scrolled ? "blur(14px)"      : "none",
-        borderBottom:     scrolled ? "1px solid #1E1E1E"   : "1px solid #1A1A1A",
+        background: scrolled ? "rgba(10,10,10,0.88)" : "rgba(10,10,10,1)",
+        backdropFilter: scrolled ? "blur(14px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
+        borderBottom: scrolled ? "1px solid #1E1E1E" : "1px solid #1A1A1A",
       }}
     >
       <div className="flex items-center justify-between h-[60px] px-6 md:px-[48px] max-w-[1400px] mx-auto">
@@ -95,12 +97,14 @@ export default function Navbar() {
 
         {/* ── Desktop CTA ── */}
         <div className="hidden md:flex items-center gap-[14px]">
-          <a
-            href="#"
-            className="font-ibm-mono text-[10px] text-[#555] tracking-[1.5px] hover:text-[#F5F5F0] transition-colors"
-          >
-            LOG IN
-          </a>
+          {!session && (
+            <a
+              href="/login"
+              className="font-ibm-mono text-[10px] text-[#555] tracking-[1.5px] hover:text-[#F5F5F0] transition-colors"
+            >
+              LOG IN
+            </a>
+          )}
           <a
             href="/workflows"
             className="font-grotesk text-[11px] font-bold text-[#0A0A0A] bg-[#FF6B35] tracking-[1.5px] px-[18px] py-[9px] hover:bg-[#F5F5F0] transition-colors"
@@ -134,8 +138,8 @@ export default function Navbar() {
       <div
         className="md:hidden overflow-hidden transition-all duration-300"
         style={{
-          maxHeight:    menuOpen ? "400px" : "0px",
-          background:   "rgba(10,10,10,0.97)",
+          maxHeight: menuOpen ? "400px" : "0px",
+          background: "rgba(10,10,10,0.97)",
           backdropFilter: "blur(14px)",
           borderBottom: menuOpen ? "1px solid #1E1E1E" : "none",
         }}
@@ -159,7 +163,7 @@ export default function Navbar() {
             );
           })}
           <div className="flex flex-col gap-[10px] pt-5">
-            <a href="#" className="font-ibm-mono text-[12px] text-[#555] tracking-[1.5px]">LOG IN</a>
+            {!session && (<a href="/login" className="font-ibm-mono text-[12px] text-[#555] tracking-[1.5px]">LOG IN</a>)}
             <a
               href="/workflows"
               className="font-grotesk text-[11px] font-bold text-[#0A0A0A] bg-[#FF6B35] tracking-[1.5px] px-[18px] py-[11px] text-center hover:bg-[#F5F5F0] transition-colors"

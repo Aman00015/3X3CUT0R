@@ -229,3 +229,10 @@
 .react-flow__node.selected #base-node {
   @apply ring-3 ring-muted-foreground/25 shadow-lg;
 }
+
+/* Liveblocks cursor size override — default is too large */
+.lb-cursor svg,
+[data-liveblocks-portal] svg {
+  width: 18px !important;
+  height: 22px !important;
+}

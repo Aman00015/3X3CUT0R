@@ -1,23 +1,20 @@
 "use client";
 
 import { type MouseEvent, useState, useCallback, useMemo } from 'react';
-import { 
-  ReactFlow, 
-  applyNodeChanges, 
-  applyEdgeChanges, 
-  addEdge,
+import {
+  ReactFlow,
   type Node,
-  type Edge,
-  type NodeChange,
-  type EdgeChange,
-  type Connection,
   Background,
   Controls,
   MiniMap,
   Panel,
 } from '@xyflow/react';
+import { useLiveblocksFlow, Cursors } from '@liveblocks/react-flow';
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
+import { useTRPC } from '@/trpc/client';
+import { useQuery } from '@tanstack/react-query';
+import { Eye } from 'lucide-react';
 
 import '@xyflow/react/dist/style.css';
 import { nodeComponents } from '@/config/node-components';
@@ -65,30 +62,29 @@ export const EditorError = () => {
 };
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
-  const { 
+  const {
     data: workflow
   } = useSuspenseWorkflow(workflowId);
 
   const setEditor = useSetAtom(editorAtom);
 
-  const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
-  const [edges, setEdges] = useState<Edge[]>(workflow.edges);
+  // Determine role: owner, editor, or viewer
+  const trpc = useTRPC();
+  const accessQuery = useQuery(trpc.shares.myAccess.queryOptions({ workflowId }));
+  const role = accessQuery.data?.role ?? 'OWNER';
+  const isViewer = role === 'VIEWER';
+
+  // Liveblocks: shared nodes & edges synced across all users in the room
+  // Viewers must NOT pass initialNodes — writing to storage is forbidden for READ_ACCESS users
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useLiveblocksFlow(
+    isViewer
+      ? {} // viewer: read from existing storage, don't seed it
+      : { initialNodes: workflow.nodes as Node[], initialEdges: workflow.edges },
+  );
+
   const [outputPanelOpen, setOutputPanelOpen] = useState(false);
   const [selectedOutputNodeId, setSelectedOutputNodeId] = useState<string | null>(null);
   const latestExecution = useLatestExecutionByWorkflow(workflowId, outputPanelOpen);
-
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-    [],
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
-    [],
-  );
 
   const onNodeDoubleClick = useCallback(
     (_: MouseEvent, node: Node) => {
@@ -103,7 +99,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   const hasManualTrigger = useMemo(() => {
-    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+    return nodes?.some((node) => node.type === NodeType.MANUAL_TRIGGER) ?? false;
   }, [nodes]);
 
   const selectedNodeOutput = useMemo(() => {
@@ -116,12 +112,15 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   return (
     <div className='size-full'>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        nodes={nodes ?? []}
+        edges={edges ?? []}
+        onNodesChange={isViewer ? undefined : onNodesChange}
+        onEdgesChange={isViewer ? undefined : onEdgesChange}
+        onConnect={isViewer ? undefined : onConnect}
         onNodeDoubleClick={onNodeDoubleClick}
+        nodesDraggable={!isViewer}
+        nodesConnectable={!isViewer}
+        elementsSelectable={!isViewer}
         nodeTypes={nodeComponents}
         onInit={setEditor}
         fitView
@@ -129,15 +128,30 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         snapToGrid
         panOnScroll
         panOnDrag={false}
-        selectionOnDrag
+        selectionOnDrag={!isViewer}
       >
+        {/* Live cursors — small custom SVG cursors for each connected user */}
+        <div className="[&_.lb-cursor-svg]:!w-4 [&_.lb-cursor-svg]:!h-4">
+          <Cursors />
+        </div>
         <Background />
         <Controls />
         <MiniMap />
-        <Panel position="top-right">
-          <AddNodeButton />
-        </Panel>
-        {hasManualTrigger && (
+        {/* Viewer badge */}
+        {isViewer && (
+          <Panel position="top-left">
+            <div className="flex items-center gap-1.5 rounded-full bg-background/80 backdrop-blur border px-3 py-1 text-xs text-muted-foreground shadow-sm">
+              <Eye className="h-3 w-3" />
+              View only
+            </div>
+          </Panel>
+        )}
+        {!isViewer && (
+          <Panel position="top-right">
+            <AddNodeButton />
+          </Panel>
+        )}
+        {hasManualTrigger && !isViewer && (
           <Panel position="bottom-center">
             <ExecuteWorkflowButton workflowId={workflowId} />
           </Panel>

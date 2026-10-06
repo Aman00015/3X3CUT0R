@@ -26,6 +26,7 @@ model User {
   accounts      Account[]
   workflows     Workflow[]
   credentials   Credential[]
+  shares        WorkflowShare[]
 
   @@unique([email])
   @@map("user")
@@ -114,9 +115,32 @@ model Workflow {
   nodes Node[]
   connections Connection[]
   executions Execution[]
+  shares WorkflowShare[]
 
   userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ShareRole {
+  VIEWER
+  EDITOR
+}
+
+model WorkflowShare {
+  id         String      @id @default(cuid())
+  workflowId String
+  workflow   Workflow    @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role       ShareRole   @default(VIEWER)
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([workflowId, userId])
+  @@map("workflow_share")
 }
 
 enum NodeType {
