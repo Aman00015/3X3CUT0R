@@ -4,6 +4,7 @@ import { type MouseEvent, useState, useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   type Node,
+  type Edge,
   Background,
   Controls,
   MiniMap,
@@ -76,10 +77,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 
   // Liveblocks: shared nodes & edges synced across all users in the room
   // Viewers must NOT pass initialNodes — writing to storage is forbidden for READ_ACCESS users
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useLiveblocksFlow(
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useLiveblocksFlow<Node, Edge>(
     isViewer
       ? {} // viewer: read from existing storage, don't seed it
-      : { initialNodes: workflow.nodes as Node[], initialEdges: workflow.edges },
+      : { 
+          nodes: { initial: workflow.nodes as Node[] }, 
+          edges: { initial: workflow.edges as Edge[] } 
+        },
   );
 
   const [outputPanelOpen, setOutputPanelOpen] = useState(false);
