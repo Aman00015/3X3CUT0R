@@ -24,31 +24,33 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const roomId: string | undefined = body?.room;
 
-  // 3. Check DB access if a roomId is present (format: "workflow-{workflowId}")
-  let isReadOnly = false;
-  if (roomId?.startsWith("workflow-")) {
-    const workflowId = roomId.replace("workflow-", "");
+  if (!roomId || !roomId.startsWith("workflow-")) {
+    return new Response("Bad Request: valid roomId is required", { status: 400 });
+  }
 
-    // Check if user is the owner
-    const ownedWorkflow = await prisma.workflow.findFirst({
-      where: { id: workflowId, userId: user.id },
+  // 3. Check DB access (format: "workflow-{workflowId}")
+  const workflowId = roomId.replace("workflow-", "");
+
+  // Check if user is the owner
+  const ownedWorkflow = await prisma.workflow.findFirst({
+    where: { id: workflowId, userId: user.id },
+  });
+
+  let isReadOnly = false;
+  if (!ownedWorkflow) {
+    // Check for a share grant
+    const share = await prisma.workflowShare.findUnique({
+      where: { workflowId_userId: { workflowId, userId: user.id } },
     });
 
-    if (!ownedWorkflow) {
-      // Check for a share grant
-      const share = await prisma.workflowShare.findUnique({
-        where: { workflowId_userId: { workflowId, userId: user.id } },
+    if (!share) {
+      return new Response("Forbidden: no access to this workflow", {
+        status: 403,
       });
-
-      if (!share) {
-        return new Response("Forbidden: no access to this workflow", {
-          status: 403,
-        });
-      }
-
-      // Viewers get read-only access
-      isReadOnly = share.role === "VIEWER";
     }
+
+    // Viewers get read-only access
+    isReadOnly = share.role === "VIEWER";
   }
 
   // 4. Create the Liveblocks session with real user identity
@@ -59,15 +61,10 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  if (roomId) {
-    lb_session.allow(
-      roomId,
-      isReadOnly ? lb_session.READ_ACCESS : lb_session.FULL_ACCESS,
-    );
-  } else {
-    // Fallback: allow all rooms (shouldn't normally hit this)
-    lb_session.allow("*", lb_session.FULL_ACCESS);
-  }
+  lb_session.allow(
+    roomId,
+    isReadOnly ? lb_session.READ_ACCESS : lb_session.FULL_ACCESS,
+  );
 
   const { status, body: responseBody } = await lb_session.authorize();
   return new Response(responseBody, { status });

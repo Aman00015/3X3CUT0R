@@ -4,6 +4,8 @@ import { NodeToolbar, Position } from "@xyflow/react";
 import { SettingsIcon, TrashIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "./ui/button";
+import { useAtomValue } from "jotai";
+import { isViewerAtom } from "@/features/editor/store/atoms";
 
 interface WorkflowNodeProps {
   children: ReactNode;
@@ -22,9 +24,11 @@ export function WorkflowNode({
   name,
   description,
 }: WorkflowNodeProps) {
+  const isViewer = useAtomValue(isViewerAtom);
+  const canEdit = showToolbar && !isViewer;
   return (
     <>
-      {showToolbar && (
+      {canEdit && (
         <NodeToolbar>
           <Button size="sm" variant="ghost" onClick={onSettings}>
             <SettingsIcon className="size-4" />

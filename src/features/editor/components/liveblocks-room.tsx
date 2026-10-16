@@ -18,7 +18,15 @@ export function LiveblocksRoom({
   return (
     <LiveblocksProvider 
       authEndpoint="/api/liveblocks-auth"
-      resolveUsers={async () => []}
+      resolveUsers={async ({ userIds }) => {
+        try {
+          const res = await fetch(`/api/liveblocks-users?ids=${encodeURIComponent(userIds.join(","))}`);
+          if (!res.ok) return [];
+          return await res.json();
+        } catch {
+          return [];
+        }
+      }}
     >
       {/* Each workflow gets its own isolated room */}
       <RoomProvider id={`workflow-${workflowId}`}>

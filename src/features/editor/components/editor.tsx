@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, useState, useCallback, useMemo } from 'react';
+import { type MouseEvent, useState, useCallback, useMemo, useEffect } from 'react';
 import {
   ReactFlow,
   type Node,
@@ -21,7 +21,7 @@ import '@xyflow/react/dist/style.css';
 import { nodeComponents } from '@/config/node-components';
 import { AddNodeButton } from './add-node-button';
 import { useSetAtom } from 'jotai';
-import { editorAtom } from '../store/atoms';
+import { editorAtom, isViewerAtom } from '../store/atoms';
 import { NodeType } from '@/generated/prisma';
 import { ExecuteWorkflowButton } from './execute-workflow-button';
 import { useLatestExecutionByWorkflow } from '@/features/executions/hooks/use-executions';
@@ -68,6 +68,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   } = useSuspenseWorkflow(workflowId);
 
   const setEditor = useSetAtom(editorAtom);
+  const setIsViewer = useSetAtom(isViewerAtom);
 
   // Determine role: owner, editor, or viewer
   const trpc = useTRPC();
@@ -75,9 +76,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const role = accessQuery.data?.role ?? 'OWNER';
   const isViewer = role === 'VIEWER';
 
+  useEffect(() => {
+    setIsViewer(isViewer);
+  }, [isViewer, setIsViewer]);
+
   // Liveblocks: shared nodes & edges synced across all users in the room
   // Viewers must NOT pass initialNodes — writing to storage is forbidden for READ_ACCESS users
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useLiveblocksFlow<Node, Edge>(
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } = useLiveblocksFlow<Node, Edge>(
     isViewer
       ? {} // viewer: read from existing storage, don't seed it
       : { 
@@ -85,6 +90,10 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
           edges: { initial: workflow.edges as Edge[] } 
         },
   );
+
+  // If viewer joins an uninitialized room, fall back to workflow nodes from DB
+  const activeNodes = (nodes && nodes.length > 0) ? nodes : (isViewer ? (workflow.nodes as Node[]) : (nodes ?? []));
+  const activeEdges = (edges && edges.length > 0) ? edges : (isViewer ? (workflow.edges as Edge[]) : (edges ?? []));
 
   const [outputPanelOpen, setOutputPanelOpen] = useState(false);
   const [selectedOutputNodeId, setSelectedOutputNodeId] = useState<string | null>(null);
@@ -103,8 +112,8 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   const hasManualTrigger = useMemo(() => {
-    return nodes?.some((node) => node.type === NodeType.MANUAL_TRIGGER) ?? false;
-  }, [nodes]);
+    return activeNodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+  }, [activeNodes]);
 
   const selectedNodeOutput = useMemo(() => {
     return getNodeOutputFromExecution(
@@ -116,11 +125,12 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   return (
     <div className='size-full'>
       <ReactFlow
-        nodes={nodes ?? []}
-        edges={edges ?? []}
+        nodes={activeNodes}
+        edges={activeEdges}
         onNodesChange={isViewer ? undefined : onNodesChange}
         onEdgesChange={isViewer ? undefined : onEdgesChange}
         onConnect={isViewer ? undefined : onConnect}
+        onDelete={isViewer ? undefined : onDelete}
         onNodeDoubleClick={onNodeDoubleClick}
         nodesDraggable={!isViewer}
         nodesConnectable={!isViewer}

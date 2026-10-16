@@ -206,13 +206,14 @@ export function NodeSelector({
   onOpenChange,
   children
 }: NodeSelectorProps) {
-  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
+  const { setNodes, getNodes, screenToFlowPosition, deleteElements } = useReactFlow();
 
   const handleNodeSelect = useCallback((selection: NodeTypeOption) => {
+    const currentNodes = getNodes();
+
     // Check if trying to add a manual trigger when one already exists
     if (selection.type === NodeType.MANUAL_TRIGGER) {
-      const nodes = getNodes();
-      const hasManualTrigger = nodes.some(
+      const hasManualTrigger = currentNodes.some(
         (node) => node.type === NodeType.MANUAL_TRIGGER,
       );
 
@@ -222,37 +223,38 @@ export function NodeSelector({
       }
     }
 
+    const initialNode = currentNodes.find(
+      (node) => node.type === NodeType.INITIAL,
+    );
+    if (initialNode) {
+      deleteElements({ nodes: [{ id: initialNode.id }] });
+    }
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    const flowPosition = screenToFlowPosition({
+      x: centerX + (Math.random() - 0.5) * 200,
+      y: centerY + (Math.random() - 0.5) * 200,
+    });
+
+    const newNode = {
+      id: createId(),
+      data: {},
+      position: flowPosition,
+      type: selection.type,
+    };
+
     setNodes((nodes) => {
-      const hasInitialTrigger = nodes.some(
-        (node) => node.type === NodeType.INITIAL,
-      );
-
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-
-      const flowPosition = screenToFlowPosition({
-        x: centerX + (Math.random() - 0.5) * 200,
-        y: centerY + (Math.random() - 0.5) * 200,
-      });
-
-      const newNode = {
-        id: createId(),
-        data: {},
-        position: flowPosition,
-        type: selection.type,
-      };
-
-      if (hasInitialTrigger) {
-        return [newNode];
-      }
-
-      return [...nodes, newNode];
+      const filtered = nodes.filter((node) => node.type !== NodeType.INITIAL);
+      return [...filtered, newNode];
     });
 
     onOpenChange(false);
   }, [
     setNodes,
     getNodes,
+    deleteElements,
     onOpenChange,
     screenToFlowPosition,
   ]);

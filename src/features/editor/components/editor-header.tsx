@@ -16,11 +16,18 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSuspenseWorkflow, useUpdateWorkflow, useUpdateWorkflowName } from "@/features/workflows/hooks/use-workflows";
 import { useAtomValue } from "jotai";
-import { editorAtom } from "../store/atoms";
+import { isViewerAtom, editorAtom } from "../store/atoms";
+import { ActiveCollaborators } from "./active-collaborators";
+import { ShareDialog } from '@/features/shares/components/share-dialog';
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   const editor = useAtomValue(editorAtom);
+  const isViewer = useAtomValue(isViewerAtom);
   const saveWorkflow = useUpdateWorkflow();
+
+  if (isViewer) {
+    return null;
+  }
 
   const handleSave = () => {
     if (!editor) {
@@ -35,7 +42,7 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
       nodes,
       edges,
     });
-  }
+  };
 
   return (
     <div className="ml-auto">
@@ -44,12 +51,13 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
         Save
       </Button>
     </div>
-  )
+  );
 };
 
 export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
   const { data: workflow } = useSuspenseWorkflow(workflowId);
   const updateWorkflow = useUpdateWorkflowName();
+  const isViewer = useAtomValue(isViewerAtom);
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(workflow.name);
@@ -96,6 +104,14 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
     }
   };
 
+  if (isViewer) {
+    return (
+      <BreadcrumbItem className="text-foreground font-medium">
+        {workflow.name}
+      </BreadcrumbItem>
+    );
+  }
+
   if (isEditing) {
     return (
       <Input
@@ -107,14 +123,14 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
         onKeyDown={handleKeyDown}
         className="h-7 w-auto min-w-[100px] px-2"
       />
-    )
+    );
   }
 
   return (
     <BreadcrumbItem onClick={() => setIsEditing(true)} className="cursor-pointer hover:text-foreground transition-colors">
       {workflow.name}
     </BreadcrumbItem>
-  )
+  );
 };
 
 export const EditorBreadcrumbs = ({ workflowId }: { workflowId: string }) => {
@@ -132,10 +148,8 @@ export const EditorBreadcrumbs = ({ workflowId }: { workflowId: string }) => {
         <EditorNameInput workflowId={workflowId} />
       </BreadcrumbList>
     </Breadcrumb>
-  )
+  );
 };
-
-import { ShareDialog } from '@/features/shares/components/share-dialog';
 
 export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
   return (
@@ -143,7 +157,8 @@ export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
       <SidebarTrigger />
       <div className="flex flex-row items-center justify-between gap-x-4 w-full">
         <EditorBreadcrumbs workflowId={workflowId} />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <ActiveCollaborators />
           <ShareDialog workflowId={workflowId} />
           <EditorSaveButton workflowId={workflowId} />
         </div>
